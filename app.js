@@ -2013,7 +2013,7 @@ new MutationObserver(records => {
   function draw(push, keepTime) {
     const initialPlayback = video === null;
     const at = keepTime && video && video.duration ? video.currentTime : 0;
-    const wasPlaying = keepTime && video && !video.paused;
+    const wasPlaying = video && !video.paused;
     const list = scenes();
     if (!list.includes(scene)) scene = list[0];
     const shared = list.filter(s => commonIds.includes(s));
@@ -2038,6 +2038,7 @@ new MutationObserver(records => {
     video.muted = true;
     video.defaultMuted = true;
     video.playsInline = true;
+    video.loop = true;
     video.autoplay = initialPlayback || Boolean(wasPlaying);
     video.src = src;
     video.playbackRate = rate;
