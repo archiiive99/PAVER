@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://archiiive99.github.io/PAVER/sitemap.xml

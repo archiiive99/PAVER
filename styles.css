@@ -1,0 +1,1467 @@
+/* ============================================================================
+   PAVER project page — design tokens and components.
+   One spacing scale, one type scale, one card. Nothing ad hoc, no inline styles.
+   ========================================================================== */
+
+/* ── tokens ───────────────────────────────────────────────────────────── */
+:root {
+  /* 8pt spacing scale */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px; --s10: 128px;
+
+  /* type scale: nothing below 15px anywhere on the page */
+  --fs-display: clamp(2.15rem, 3.9vw, 3.15rem);
+  --fs-h2:      clamp(1.5rem, 2.3vw, 1.95rem);
+  --fs-h3:      clamp(1.125rem, 1.6vw, 1.375rem);
+  --fs-lead:    1.1875rem;   /* 19px */
+  --fs-body:    1.0625rem;   /* 17px */
+  --fs-meta:    0.9375rem;   /* 15px */
+  --fs-label:   0.875rem;    /* 14px, uppercase only */
+  --lh-tight:   1.2;
+  --lh-body:    1.7;
+
+  --radius:   14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, "Helvetica Neue", "LatoLocal", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", "JetBrains Mono", "MonoLocal",
+          Menlo, Consolas, monospace;
+
+  --bar-h: 60px;
+  --page:  1200px;
+}
+
+:root[data-theme="dark"] {
+  --bg:        #070809;
+  --fg:        #f4f5f7;
+  --fg-2:      #c9cfd9;
+  --fg-3:      #98a0ac;
+  /* a dark surface at high opacity, not white at low opacity: the old value
+     let 95% of the background wash through, against 38% in light mode */
+  --surface:   24 28 35;
+  --surface-a: 0.70;
+  --surface-hi: 0.84;
+  --line:      255 255 255;
+  --line-a:    0.11;
+  --accent:    #209EFF;
+  --paver:     #209EFF;
+  --accent-2:  #b79cff;
+  --accent-3:  #6ee7c7;
+  --warn:      #e8b04b;
+  --bad:       #f28b8b;
+  --solid:     #0e1116;
+  --plot-bg:   #191d25;
+  --shadow:    0 14px 34px -14px rgb(0 0 0 / 0.55), 0 1px 1px rgb(0 0 0 / 0.30);
+  --shadow-lift: 0 22px 48px -18px rgb(0 0 0 / 0.70), 0 2px 3px rgb(0 0 0 / 0.34);
+  --sheen:     0.22;
+  --baseline:  #e0a458;
+  --seg-track: rgb(255 255 255 / 0.05);
+  --seg-thumb: rgb(255 255 255 / 0.13);
+  --seg-line:  rgb(255 255 255 / 0.17);
+  --seg-cast:  0 1px 2px rgb(0 0 0 / 0.28);
+  --table-bg:  #171b22;
+  --table-hover: rgb(var(--line) / 0.07);
+  --table-line: rgb(255 255 255 / 0.10);
+}
+
+:root[data-theme="light"] {
+  --bg:        #e9edf3;
+  --fg:        #0e1116;
+  --fg-2:      #303844;
+  --fg-3:      #5d6675;
+  --surface:   255 255 255;
+  /* the card is translucent enough for the background wash to read through, as
+     it does in dark mode; near-black body text keeps well past 4.5:1 either way */
+  --surface-a: 0.62;
+  --surface-hi: 0.78;
+  --line:      14 20 30;
+  --line-a:    0.11;
+  --accent:    #0b6fbf;
+  --paver:     #209EFF;
+  --accent-2:  #5a37c6;
+  --accent-3:  #0b7f66;
+  --warn:      #9a6512;
+  --bad:       #b6373a;
+  --solid:     #ffffff;
+  --plot-bg:   #fbfcfd;
+  --shadow:    0 10px 30px -12px rgb(16 26 46 / 0.16), 0 1px 2px rgb(16 26 46 / 0.05);
+  --shadow-lift: 0 18px 44px -16px rgb(16 26 46 / 0.26), 0 2px 4px rgb(16 26 46 / 0.09);
+  --sheen:     0.7;
+  --baseline:  #9a6512;
+  --seg-track: rgb(14 20 30 / 0.045);
+  --seg-thumb: #ffffff;
+  --seg-line:  rgb(14 20 30 / 0.10);
+  --seg-cast:  0 1px 2px rgb(16 26 46 / 0.12);
+  --table-bg:  #ffffff;
+  --table-hover: rgb(var(--line) / 0.07);
+  --table-line: rgb(14 20 30 / 0.10);
+}
+
+/* ── reset ────────────────────────────────────────────────────────────── */
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--fg); }
+::-moz-selection { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--fg); }
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  color-scheme: light dark; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: var(--fs-body)/var(--lh-body) var(--sans);
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { margin: 0; line-height: var(--lh-tight); letter-spacing: -0.024em; font-weight: 600; }
+p { margin: 0; }
+ul, ol { margin: 0; padding-left: 1.25em; }
+img, video, svg { display: block; max-width: 100%; }
+/* Keep metric explanations without browser-default dotted underlines. */
+table abbr[title] { text-decoration: none; border-bottom: 0; }
+a { color: var(--accent); text-decoration: none; }a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+      clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: -9999px; top: 0; z-index: var(--z-overlay); padding: var(--s3) var(--s4);
+        background: var(--fg); color: var(--bg); border-radius: 0 0 var(--radius) 0; }
+.skip:focus { left: 0; }
+
+/* ── background ───────────────────────────────────────────────────────── */
+.aurora { position: fixed; inset: -20vh -12vw; z-index: -2; opacity: 0.75;
+          pointer-events: none; contain: strict; }
+/* the gradients already fall off softly, so no blur filter is needed: a
+ * viewport-sized filter would repaint on every selection and scroll. */
+.aurora i { position: absolute; display: block; border-radius: 50%; mix-blend-mode: screen;
+            will-change: transform;
+            animation: drift 40s ease-in-out infinite; }
+:root[data-theme="light"] .aurora i { mix-blend-mode: multiply; opacity: 0.46; }
+.aurora i:nth-child(1) { inset: 4vh auto auto -8vw; width: 54vw; height: 54vw;
+  background: radial-gradient(circle at 40% 40%, color-mix(in srgb, var(--accent) 100%, transparent) 0%, color-mix(in srgb, var(--accent) 62%, transparent) 26%, color-mix(in srgb, var(--accent) 30%, transparent) 46%, color-mix(in srgb, var(--accent) 12%, transparent) 64%, color-mix(in srgb, var(--accent) 3%, transparent) 82%, transparent 100%); }
+.aurora i:nth-child(2) { inset: 26vh -6vw auto auto; width: 46vw; height: 46vw; animation-delay: -13s;
+  background: radial-gradient(circle at 60% 40%, color-mix(in srgb, var(--accent-2) 100%, transparent) 0%, color-mix(in srgb, var(--accent-2) 62%, transparent) 26%, color-mix(in srgb, var(--accent-2) 30%, transparent) 46%, color-mix(in srgb, var(--accent-2) 12%, transparent) 64%, color-mix(in srgb, var(--accent-2) 3%, transparent) 82%, transparent 100%); }
+.aurora i:nth-child(3) { inset: auto auto -10vh 24vw; width: 42vw; height: 42vw; animation-delay: -26s;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent-3) 100%, transparent) 0%, color-mix(in srgb, var(--accent-3) 62%, transparent) 26%, color-mix(in srgb, var(--accent-3) 30%, transparent) 46%, color-mix(in srgb, var(--accent-3) 12%, transparent) 64%, color-mix(in srgb, var(--accent-3) 3%, transparent) 82%, transparent 100%); }
+.aurora.paused i { animation-play-state: paused; }
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(5vw, -4vh, 0) scale(1.1); }
+  66%      { transform: translate3d(-4vw, 3vh, 0) scale(0.94); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .aurora i { animation: none; }
+}
+
+/* ── layout ───────────────────────────────────────────────────────────── */
+.wrap { width: 100%; max-width: var(--page); margin-inline: auto; padding-inline: var(--s5); }
+
+section { padding-block: 56px 0; scroll-margin-top: calc(var(--bar-h) + var(--s5)); }
+section > .wrap > * + * { margin-top: var(--s5); }
+
+.shead { display: flex; flex-direction: column; gap: var(--s3); max-width: 78ch; }
+/* wins on specificity rather than on !important: the rule it has to beat is
+   `section > .wrap > * + *`, so matching that shape is enough */
+section > .wrap > .shead + * { margin-top: var(--s6); }
+h2 { font-size: var(--fs-h2); }
+.label {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  font: 600 var(--fs-label)/1 var(--sans);
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+}
+.label::before { content: ""; width: 20px; height: 2px; border-radius: 2px;
+                 background: currentColor; opacity: 0.7; }
+
+h3 { font-size: var(--fs-h3); line-height: 1.28; }
+.lead { font-size: var(--fs-lead); line-height: 1.62; color: var(--fg-2); max-width: 74ch; }
+.meta { font-size: var(--fs-meta); color: var(--fg-3); }
+
+
+.stack   { display: flex; flex-direction: column; gap: var(--s5); }
+.cols-2  { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s5); }
+.cols-3  { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); }
+.cols-2 > *, .cols-3 > * { min-width: 0; }
+@media (max-width: 900px) {
+  .cols-2, .cols-3 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── card: the only container on the page ─────────────────────────────── */
+.card {
+  position: relative;
+  padding: var(--s6);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg,
+      rgb(var(--surface) / calc(var(--surface-a) + 0.05)),
+      rgb(var(--surface) / var(--surface-a)) 42%);
+  box-shadow: var(--shadow);
+  contain: paint;
+}
+/* the card surface is nearly opaque, so it needs no backdrop pass; the glass
+ * blur is kept only where the surface is genuinely translucent. */
+.card.near { background-image:
+  linear-gradient(180deg, rgb(var(--surface) / calc(var(--surface-a) + 0.06)),
+                          rgb(var(--surface) / var(--surface-a)) 42%); }
+.card > * + * { margin-top: var(--s4); }
+.card > .chead + * { margin-top: var(--s4); }
+.card.tight { padding: var(--s5); }
+
+.chead { display: flex; align-items: flex-start; gap: var(--s4); flex-wrap: wrap; }
+.chead .titles { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
+.chead .reference { font: 600 var(--fs-label)/1 var(--sans); letter-spacing: 0.09em;
+                 text-transform: uppercase; color: var(--accent); }
+.chead .actions { margin-left: auto; display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+
+.caption { font-size: var(--fs-meta); line-height: 1.6; color: var(--fg-3); max-width: 92ch; }
+.source  { font: 400 var(--fs-meta)/1.6 var(--sans); color: var(--fg-3); }
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  padding: var(--s3) var(--s4); border-radius: var(--radius);
+  font-size: var(--fs-meta); font-weight: 500; cursor: pointer;
+  background: rgb(var(--surface) / var(--surface-hi));
+  border: 1px solid rgb(var(--line) / var(--line-a));
+  color: var(--fg);
+}.btn:hover, .btn:focus-visible { text-decoration: none; border-color: rgb(var(--line) / calc(var(--line-a) * 2)); }
+.btn.solid { background: var(--fg); color: var(--bg); border-color: transparent; font-weight: 600; }.btn.solid:hover, .btn.solid:focus-visible { opacity: 0.88; }
+.btn.icon { padding: 0; width: 40px; height: 40px; justify-content: center; }
+
+/* the legacy .seg block is gone: every tab group is a .segbar built by chipTabs */
+
+.chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip { display: inline-flex; align-items: center; padding: var(--s2) var(--s3);
+        border-radius: var(--radius-pill); font: 500 var(--fs-meta)/1 var(--sans);
+        color: var(--fg-2); cursor: pointer;
+        background: rgb(var(--surface) / var(--surface-hi));
+        border: 1px solid rgb(var(--line) / var(--line-a)); }.chip:hover, .chip:focus-visible { color: var(--fg); text-decoration: none; }
+.chip[aria-selected="true"] { background: var(--fg); color: var(--bg); border-color: transparent; }
+
+.tag { display: inline-flex; align-items: center; padding: var(--s1) var(--s3);
+       border-radius: var(--radius-pill); font-size: var(--fs-meta); color: var(--fg-2);
+       border: 1px solid rgb(var(--line) / calc(var(--line-a) * 1.6)); }
+.tag.accent { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+              background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.tag.ok   { color: var(--accent-3); border-color: color-mix(in srgb, var(--accent-3) 40%, transparent); }
+.tag.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+.tag.bad  { color: var(--bad);  border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
+
+/* shadcn-style select trigger */
+.select { position: relative; display: inline-flex; }
+.select::after {
+  content: ""; position: absolute; right: var(--s3); top: 50%; width: 8px; height: 8px;
+  margin-top: -6px; pointer-events: none; border-right: 1.6px solid var(--fg-3);
+  border-bottom: 1.6px solid var(--fg-3); transform: rotate(45deg);
+}
+.select select {
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+  font: 500 var(--fs-meta)/1 var(--sans); color: var(--fg);
+  padding: var(--s3) calc(var(--s5) + var(--s3)) var(--s3) var(--s4);
+  min-width: 230px; border-radius: var(--radius);
+  background: rgb(var(--surface) / var(--surface-hi));
+  border: 1px solid rgb(var(--line) / calc(var(--line-a) * 1.6));
+}.select select:hover, .select select:focus-visible { border-color: rgb(var(--line) / calc(var(--line-a) * 2.6)); }
+.select select option { background: var(--solid); color: var(--fg); }
+
+input[type="search"] {
+  font: 400 var(--fs-meta)/1 var(--sans); padding: var(--s3) var(--s4);
+  border-radius: var(--radius); color: var(--fg);
+  background: rgb(var(--surface) / var(--surface-hi));
+  border: 1px solid rgb(var(--line) / var(--line-a));
+}
+
+details.fold > summary { cursor: pointer; font-size: var(--fs-meta); color: var(--fg-3);
+                         padding-block: var(--s2); }details.fold > summary:hover, details.fold > summary:focus-visible { color: var(--fg); }
+details.fold[open] > summary { margin-bottom: var(--s3); }
+
+/* ── header ───────────────────────────────────────────────────────────── */
+.bar { position: sticky; top: 0; z-index: var(--z-header); height: var(--bar-h); display: flex; align-items: center;
+       background: rgb(var(--surface) / calc(var(--surface-a) * 0.9));
+       -webkit-backdrop-filter: blur(20px) saturate(170%);
+       backdrop-filter: blur(20px) saturate(170%);
+       border-bottom: 1px solid rgb(var(--line) / var(--line-a)); }
+.bar .wrap { display: flex; align-items: center; gap: var(--s4); }
+.bar #menu { margin-right: auto; }        /* only shown on narrow viewports */
+.bar #theme { position: absolute; right: var(--s5); }
+.bar > .wrap { position: relative; }
+.brand { font-weight: 700; letter-spacing: -0.04em; font-size: 1.1rem; }
+.brand span { color: var(--accent); }
+nav.navbar { margin: 0 auto; gap: 2px; padding: 3px; }
+nav.navbar a {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  height: 32px; padding: 0 var(--s4); line-height: 1;
+  border-radius: var(--radius-pill); white-space: nowrap;
+  font-size: var(--fs-meta); font-weight: 500; color: var(--fg-3);
+  transition: color var(--t-slow) ease;
+}nav.navbar a:hover, nav.navbar a:focus-visible { color: var(--fg-2); text-decoration: none; }
+nav.navbar a[aria-current="true"] { color: var(--fg); font-weight: 600; }
+#menu { display: none; }
+@media (max-width: 1000px) {
+  /* on a narrow viewport the bar becomes a sheet, where a sliding thumb reads wrong */
+  nav.navbar { position: fixed; inset: var(--bar-h) 0 auto; display: none; flex-direction: column; gap: 0;
+        padding: var(--s2); max-height: 70vh; overflow: auto;
+        background: var(--solid); box-shadow: none;
+        border-bottom: 1px solid rgb(var(--line) / var(--line-a)); }
+  nav.navbar.open { display: flex; }
+  nav.navbar a { height: auto; justify-content: flex-start;
+                 padding: var(--s3) var(--s4); font-size: var(--fs-body); border-radius: var(--radius); }
+  nav.navbar a[aria-current="true"] { background: rgb(var(--line) / 0.07); }
+  nav.navbar .thumb { display: none; }
+  #menu { display: inline-flex; }
+}
+
+/* ── hero ─────────────────────────────────────────────────────────────── */
+.hero { padding-block: var(--s8) 0; }
+.hero > .wrap { display: flex; flex-direction: column; gap: var(--s5); }
+.hero h1 { font-size: var(--fs-display); font-weight: 700; letter-spacing: -0.038em; max-width: 34ch; }
+.authors { display: flex; flex-direction: column; gap: var(--s1); }
+.authors .names { font-size: var(--fs-lead); font-weight: 600; }
+.authors .affil { font-size: var(--fs-meta); color: var(--fg-3); }
+
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s5); }
+@media (max-width: 900px) { .kpis { grid-template-columns: 1fr; } }
+.kpi { display: flex; flex-direction: column; gap: var(--s3); }
+.kpi .k-label { font: 600 var(--fs-meta)/1 var(--sans); letter-spacing: 0;
+                color: var(--fg-2); }
+.kpi .k-row { display: flex; align-items: baseline; gap: var(--s2); font-family: var(--sans);
+              font-variant-numeric: tabular-nums;
+              letter-spacing: -0.03em; }
+.kpi .k-from { font-size: 1.2rem; color: var(--fg-3); }
+.kpi .k-arrow { font-size: 1rem; color: var(--fg-3); }
+.kpi .k-to { font-size: 2.1rem; line-height: 1; color: var(--paver); }
+.kpi .k-note { font-size: var(--fs-meta); line-height: 1.55; color: var(--fg-3); }
+
+/* ── figures ──────────────────────────────────────────────────────────── */
+/* a figure sits on plain white with an even margin, no glow and no shadow */
+.frame { position: relative; border-radius: var(--radius); overflow: hidden;
+         padding: var(--s4); background: #fff; }
+.frame > .plate { border-radius: 0; overflow: hidden; background: #fff; }
+.frame img { width: 100%; height: auto; }
+.frame.flat { padding: 0; background: none; }
+.frame.flat > .plate { border-radius: var(--radius); }
+img[data-full] { cursor: pointer; }
+
+.grid-figure { display: grid; gap: 0; }
+.grid-figure.q4 { grid-template-columns: 2.667fr 1fr 1fr 1fr; }
+.grid-figure.q3 { grid-template-columns: repeat(3, 1fr); }
+.colhead { display: grid; gap: 0; }
+.colhead.q4 { grid-template-columns: 2.667fr 1fr 1fr 1fr; }
+.colhead.q3 { grid-template-columns: repeat(3, 1fr); }
+.grid-figure.cross, .colhead.cross { grid-template-columns: 2fr repeat(7, 1fr); }
+@media (max-width: 1000px) { .grid-figure.cross, .colhead.cross { grid-template-columns: repeat(4, 1fr); } }
+.colhead span { font-size: var(--fs-meta); font-weight: 600; text-align: center; color: var(--fg-2);
+                padding-bottom: var(--s2); }
+.hairline { height: 1px; background: rgb(var(--line) / calc(var(--line-a) * 1.6)); }
+@media (max-width: 760px) {
+  .grid-figure.q4 { grid-template-columns: 1fr 1fr; }
+  .colhead { display: none; }
+}
+
+/* ── tables ───────────────────────────────────────────────────────────── */
+/* A results table is read by scanning one column for the best number and one
+   row for a method, so the design serves those two moves: the header stays put
+   while the body scrolls, the method column is pinned, rows light up under the
+   pointer, and the value that wins is the only bold thing in its column. */
+/* No vertical clipping: a table is shown whole, and only overflows sideways when
+   it is genuinely wider than the column. The height cap meant long tables were
+   read through a 32rem window, which is worse than a longer page. */
+.scroller {
+  overflow-x: auto; border-radius: var(--radius);
+  background: var(--table-bg); border: 1px solid var(--table-line);
+}
+table { width: 100%; border-collapse: separate; border-spacing: 0;
+        font-size: var(--fs-meta); font-variant-numeric: tabular-nums lining-nums; }
+caption { text-align: left; font-size: var(--fs-meta); color: var(--fg-2);
+          padding: 0 0 var(--s3); line-height: 1.55; }
+
+/* header: sentence case and a real weight, not tracked-out small caps */
+thead th {
+  background: var(--table-bg);
+  font: 600 var(--fs-meta)/1.3 var(--sans); letter-spacing: 0;
+  color: var(--fg-2); text-align: right; padding: var(--s3) var(--s4);
+  white-space: nowrap;
+  box-shadow: inset 0 -1px 0 var(--table-line);
+}
+/* The unit and the direction used to be a second line under the column name,
+   which doubled the header height on every table. They are part of the name:
+   "L2 (m) ↓" says the same thing on one line. */
+.dir { font-weight: 400; color: var(--fg-3); text-decoration: none;
+       border: 0; cursor: inherit; }
+/* the name, its unit, its arrow and the sort caret are one unit and must not be
+   split across lines */
+thead th { white-space: nowrap; }
+/* the two files spell the spanning category row differently */
+thead tr.group th, thead tr.grp th {
+  color: var(--fg-3); font-weight: 500; padding-bottom: var(--s3); box-shadow: none;
+}
+/* the category row was sitting straight on top of the column names */
+thead tr.group + tr th, thead tr.grp + tr th { padding-top: var(--s3); }
+thead tr.group th[colspan], thead tr.grp th[colspan] {
+  text-align: center; box-shadow: inset 0 -1px 0 var(--table-line);
+}
+/* only the row that names the columns is pinned; a magic offset for a second
+   sticky row breaks the moment a header wraps */
+/* overflow-x on the wrapper still makes it a scroll container, so sticky resolves
+   against that box and not the page: any non-zero offset pushes the header down
+   inside the table and leaves a blank band above it. The table is no longer
+   clipped vertically, so 0 is both correct and invisible. */
+thead tr:last-child th { position: sticky; top: 0; z-index: var(--z-raised); }
+thead tr:last-child th.stick { z-index: var(--z-sticky); }
+
+thead th:first-child, tbody td:first-child, tbody th:first-child { text-align: left; }
+tbody td, tbody th {
+  padding: var(--s3) var(--s4); text-align: right; white-space: nowrap;
+  font-family: var(--sans); font-weight: 400; color: var(--fg-2);
+  border-bottom: 1px solid rgb(var(--line) / calc(var(--line-a) * 0.35));
+}
+tbody th { font-weight: 500; text-align: left; color: var(--fg); }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }/* scanning a row across ten columns needs the row to stay visible */
+tbody tr:hover td, /* scanning a row across ten columns needs the row to stay visible */
+tbody tr:focus-visible td, tbody tr:hover th, tbody tr:focus-visible th { background: rgb(var(--line) / 0.05); }
+
+/* ours: a left rule carries the emphasis, so the tint can stay quiet enough
+   for the numbers on top of it to keep their contrast */
+tbody tr.ours td, tbody tr.ours th {
+  background: color-mix(in srgb, var(--paver) 8%, transparent);
+}
+tbody tr.ours th:first-child { box-shadow: inset 3px 0 0 var(--paver); }
+tbody tr.ours th { color: var(--paver); font-weight: 600; }
+tbody tr.sweep td, tbody tr.sweep th {
+  background: color-mix(in srgb, var(--paver) 3.5%, transparent); }
+tbody tr.sweep th { color: var(--fg-2); }
+tbody tr.sep td, tbody tr.sep th {
+  border-top: 1px solid rgb(var(--line) / calc(var(--line-a) * 1.3)); }
+
+/* the winning value is the only bold number in its column */
+b.win { font-weight: 700; color: var(--fg); }
+
+/* the method column stays readable while the metrics scroll under it */
+th.stick, td.stick { position: sticky; left: 0; z-index: var(--z-sticky); background: var(--table-bg); }
+tbody tr.ours th.stick { background: color-mix(in srgb, var(--paver) 8%, var(--table-bg)); }
+tbody tr.sweep th.stick { background: color-mix(in srgb, var(--paver) 3.5%, var(--table-bg)); }tbody tr:hover th.stick, tbody tr:focus-visible th.stick { background: color-mix(in srgb, var(--fg) 5%, var(--table-bg)); }
+
+/* a value the source does not provide reads as absent, not as zero */
+td .na { color: var(--fg-3); font-variant-numeric: normal; }
+
+.tnote { font-size: var(--fs-label); line-height: 1.6; color: var(--fg-3); }
+.tnote a { color: var(--fg-2); }
+
+/* ── charts ───────────────────────────────────────────────────────────── */
+.chart { display: block; overflow: visible; font-family: var(--sans); width: 100%;
+         font-variant-numeric: tabular-nums; }
+.chart .grid     { stroke: rgb(var(--line) / calc(var(--line-a) * 1.2)); stroke-width: 1; }
+.chart .sepline  { stroke: rgb(var(--line) / calc(var(--line-a) * 1.7)); stroke-width: 1; }
+.chart .ref      { stroke: var(--baseline); stroke-width: 1.4; stroke-dasharray: 5 4; opacity: 0.85; }
+.chart .reflab   { fill: var(--baseline); font-size: var(--fs-chart-label); font-weight: 600; }
+.chart .tick     { fill: var(--fg-3); font-size: var(--fs-chart-tick); }
+.chart .axis     { fill: var(--fg-2); font-size: var(--fs-chart-axis); font-weight: 600; }
+.chart .axis.l2  { fill: var(--paver); }
+.chart .axis.col { fill: var(--accent-3); }
+.chart .hint     { fill: var(--fg-3); font-size: var(--fs-chart-small); }
+.chart .val      { fill: var(--fg); font-size: var(--fs-chart-label); font-weight: 600; }
+.chart .gain     { fill: var(--accent-3); font-size: var(--fs-chart-label); font-weight: 700; }
+.chart .plab     { fill: var(--fg-2); font-size: var(--fs-chart-label); font-weight: 500; }
+.chart .mid { text-anchor: middle; } .chart .end { text-anchor: end; } .chart .start { text-anchor: start; }
+.chart .swatch.base { fill: var(--fg-3); } .chart .swatch.ours { fill: var(--paver); }
+.chart .arrow { stroke: rgb(var(--line) / calc(var(--line-a) * 3.2)); stroke-width: 1.5; }
+.chart .arrowhead { fill: rgb(var(--line) / calc(var(--line-a) * 3.2)); }
+/* bars are painted opaque: the grid must never read through a bar */
+.chart .bar .fill { fill: color-mix(in srgb, var(--fg-3) 52%, var(--plot-bg)); opacity: 1; }
+.chart .bar.ours .fill { fill: color-mix(in srgb, var(--paver) 94%, var(--plot-bg)); opacity: 1; }
+.chart g.bar:hover .fill, .chart g.bar:focus-visible .fill { fill: var(--fg-2); }
+.chart g.bar.ours:hover .fill, .chart g.bar.ours:focus-visible .fill { fill: var(--paver); }
+.chart g.pt .dot { fill: var(--fg-3); stroke: var(--bg); stroke-width: 1.6; }
+.chart g.pt.ours .dot { fill: var(--paver); stroke-width: 2; }
+.chart g.pt.ours .plab { fill: var(--paver); font-weight: 700; }
+.chart g.pt.rep .dot { fill: none; stroke: var(--accent-2); stroke-width: 2.2; }
+.chart g.pt.task .dot { fill: var(--fg-3); opacity: 0.75; }
+.chart g.pt.paver .dot { fill: var(--paver); }
+.chart g.pt.l2 .dot { fill: var(--paver); }
+.chart g.pt.col .dot { fill: var(--accent-3); }
+.chart g.pt.scratch .dot { fill: none; stroke: var(--fg-3); stroke-width: 2.2; }
+.chart g.pt:hover .dot, .chart g.pt:focus-visible .dot { stroke: var(--fg); }
+.chart .series { fill: none; stroke-width: 2.2; }
+.chart .series.l2 { stroke: var(--paver); }
+.chart .series.col { stroke: var(--accent-3); }
+.chart .bar .fill { transform-box: fill-box; transform-origin: 0% 50%; }
+.chart .bar.v .fill { transform-origin: 50% 100%; }   /* vertical bars grow from the baseline up */
+.chart:not(.run) .bar .fill { transform: scaleX(0); }
+.chart:not(.run) .bar.v .fill { transform: scaleY(0); }
+.chart.run .bar .fill { transform: none; transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), fill var(--t-base); }
+.chart:not(.run) g.pt { opacity: 0; }
+.chart.run g.pt { opacity: 1; transition: opacity var(--t-slow) ease; }
+.chart:not(.run) .arrow, .chart:not(.run) .series { opacity: 0; }
+.chart.run .arrow { opacity: 1; transition: opacity var(--t-slow) ease var(--t-slow); }
+.chart.run .series { opacity: 1; stroke-dasharray: var(--len); animation: draw 0.85s cubic-bezier(0.3, 0.7, 0.2, 1) both; }
+@keyframes draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .chart .bar .fill, .chart g.pt, .chart .arrow, .chart .series {
+    transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+}
+
+.tip { position: fixed; z-index: var(--z-overlay); pointer-events: none; opacity: 0; transition: opacity var(--t-fast);
+       padding: var(--s3); border-radius: var(--radius); max-width: 320px;
+       font-size: var(--fs-meta); line-height: 1.5;
+       background: var(--solid); color: var(--fg);
+       border: 1px solid rgb(var(--line) / calc(var(--line-a) * 2));
+       box-shadow: var(--shadow); }
+.tip.on { opacity: 1; }
+.tip i { color: var(--fg-3); font-style: normal; }
+
+video { width: 100%; border-radius: var(--radius); background: #000; aspect-ratio: 16 / 9; }
+
+#top { position: fixed; right: var(--s5); bottom: var(--s5); z-index: var(--z-float); opacity: 0;
+       pointer-events: none; transition: opacity var(--t-base); }
+#top.on { opacity: 1; pointer-events: auto; }
+
+footer { padding-block: 56px var(--s8); }
+footer > .wrap { display: flex; flex-direction: column; gap: var(--s3); }
+pre.bib { width: 100%; max-width: 100%; margin: 0; padding: var(--s4);
+          border-radius: var(--radius); overflow-x: auto;
+          font: 400 var(--fs-meta)/1.65 var(--mono); color: var(--fg-2);
+          background: rgb(var(--surface) / var(--surface-hi));
+          border: 1px solid rgb(var(--line) / var(--line-a)); }
+
+/* ── KPI bars ─────────────────────────────────────────────────────────── */
+.kpi .k-plot { width: 100%; height: 35px; overflow: visible; }
+.kpi .k-plot .track { fill: rgb(var(--line) / calc(var(--line-a) * 0.8)); }
+.kpi .k-plot .base  { fill: color-mix(in srgb, var(--fg-3) 55%, var(--plot-bg)); }
+.kpi .k-plot .ours  { fill: var(--paver); }
+.kpi .k-plot .k-name { font: 500 12px var(--sans); fill: var(--fg-3); }
+.kpi .k-plot .k-name.hi { fill: var(--paver); }
+.kpi .k-bar { cursor: default; }.kpi .k-bar:hover .base, .kpi .k-bar:focus-visible .base { opacity: 0.8; }.kpi .k-bar:hover .track, .kpi .k-bar:focus-visible .track { fill: rgb(var(--line) / calc(var(--line-a) * 1.6)); }
+.kpi .k-plot .base, .kpi .k-plot .ours { transform-box: fill-box; transform-origin: 0% 50%; }
+.kpi:not(.run) .base, .kpi:not(.run) .ours { transform: scaleX(0); }
+.kpi.run .base, .kpi.run .ours { transform: none; transition: transform 0.85s cubic-bezier(0.2, 0.75, 0.2, 1); }
+.kpi.run .ours { transition-delay: 0.15s; }
+@media (prefers-reduced-motion: reduce) {
+  .kpi .base, .kpi .ours { transform: none !important; transition: none !important; }
+}
+
+.chart .poly { stroke-width: 2.2; stroke-linejoin: round; }
+.chart .poly.base { stroke: var(--fg-3); fill: var(--fg-3); fill-opacity: 0.10; }
+.chart .poly.ours { stroke: var(--paver); fill: var(--paver); fill-opacity: 0.20; }
+.chart .web { stroke: rgb(var(--line) / calc(var(--line-a) * 1.3)); fill: none; }
+.chart .spoke { stroke: rgb(var(--line) / calc(var(--line-a) * 1.1)); }
+.chart .rlab { fill: var(--fg-2); font-size: var(--fs-chart-label); font-weight: 600; }
+.chart .rsub { fill: var(--fg-3); font-size: var(--fs-chart-small); }
+.chart:not(.run) .poly { opacity: 0; transform: scale(0.7); }
+.chart.run .poly { opacity: 1; transform: none; transition: opacity var(--t-slow) ease, transform 0.7s cubic-bezier(0.2, 0.75, 0.2, 1); }
+.chart.run .poly.ours { transition-delay: 0.12s; }
+@media (prefers-reduced-motion: reduce) { .chart .poly { opacity: 1 !important; transform: none !important; } }
+
+/* ── liquid segmented bar: one glass bar, hidden button edges, sliding thumb ── */
+/* ── liquid glass segmented control ───────────────────────────────────────
+   Three things make it read as glass rather than as frosting:
+   1. the track is recessed, so the lens sits above a visible surface
+   2. the lens refracts what is behind it (blur + saturate + brightness) instead
+      of merely tinting it
+   3. the rim carries a specular streak and a chromatic dispersion ring, which is
+      what the eye actually uses to identify a glass edge
+   ---------------------------------------------------------------------------- */
+/* ── segmented control, regular Liquid Glass variant ──────────────────────
+   These bars sit on flat cards, not on media, so per Apple's guidance the clear
+   variant is wrong here: it needs a dimming layer underneath, a tint on the
+   primary element, and a stronger shadow to stay legible.
+   ------------------------------------------------------------------------- */
+.segbar {
+  position: relative; display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 4px;
+  border-radius: var(--radius-pill); max-width: 100%;
+  background: var(--seg-track);
+}
+
+.segbar .thumb {
+  position: absolute; left: 0; top: 0; z-index: var(--z-below); width: 0; height: 0;
+  border-radius: var(--radius-pill);
+  background: var(--seg-thumb);
+  box-shadow: inset 0 0 0 1px var(--seg-line), var(--seg-cast);
+  transition: transform var(--t-slow) cubic-bezier(0.34, 1.3, 0.38, 1),
+              width var(--t-slow) cubic-bezier(0.34, 1.3, 0.38, 1),
+              height var(--t-slow) ease, opacity var(--t-base) ease;
+}
+.segbar .thumb.hidden { opacity: 0; }
+.segbar button {
+  position: relative; border: 0; background: none; cursor: pointer; white-space: nowrap;
+  /* an explicit box with centred content, so the label is optically centred and the
+     thumb, which copies this box, is symmetric top and bottom */
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 34px; padding: 0 var(--s4); line-height: 1;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-meta); font-weight: 500; color: var(--fg-2);
+  transition: color var(--t-slow) ease;
+}.segbar button:hover, .segbar button:focus-visible { color: var(--fg); }
+.segbar button[aria-selected="true"] { color: var(--fg); font-weight: 650; }
+@media (prefers-reduced-motion: reduce) { .segbar .thumb { transition: none; } }
+
+
+/* a table inside a card is a plain block, never another card */
+.tblock + .tblock { margin-top: var(--s6); padding-top: var(--s6);
+                    border-top: 1px solid rgb(var(--line) / calc(var(--line-a) * 0.9)); }
+.tblock > * + * { margin-top: var(--s3); }
+/* a table name sits inside a card, under that card's h3, so it must not be set
+   at the card-title size: at --fs-h3 the group name and every table name looked
+   like the same level of heading */
+.tblock h4 { font-size: var(--fs-body); font-weight: 650; letter-spacing: -0.012em;
+             margin: 0; color: var(--fg); }
+
+/* metric-row bars: the winner is weight plus a small tick, and every row carries
+   its signed distance from the baseline instead of a floating label */
+.chart .delta { font: 600 13px var(--sans); }
+.chart .delta.up   { fill: var(--accent-3); }
+.chart .delta.down { fill: var(--fg-3); }
+.chart .delta.flat { fill: var(--fg-3); opacity: 0.6; }
+.chart .beststrong { fill: var(--fg); font-weight: 700; }
+.chart .bestmark { stroke: var(--paver); stroke-width: 2; fill: none; stroke-linecap: round; }
+.chart g.bar.best .fill { filter: saturate(1.15); }
+
+/* the metric selector sits well clear of the x-axis label */
+.pane > .segbar, .pane > .chips, #anTools { margin-top: var(--s7); }
+
+/* the trajectory view has nine metrics in its bar, so it steps one size down */
+#anTools.segbar button { font-size: var(--fs-label); height: 30px; padding: 0 var(--s3); }
+
+/* ── Figure 1b: the transfer arrows and the winning markers carry the message ── */
+.chart .twarrow { stroke: var(--paver); stroke-width: 3.4; stroke-linecap: round; }
+.chart .twarrow-glow { stroke: var(--paver); stroke-width: 9; stroke-linecap: round; opacity: 0.16; }
+/* Three arrows cross inside a small plot, so a delta label sometimes has no
+   clear spot left. paint-order draws a surface-coloured outline behind the
+   glyphs first, which keeps the number readable wherever it lands. */
+.chart .twdelta { fill: var(--paver); font: 700 var(--fs-chart-label) var(--sans);
+                  paint-order: stroke fill; stroke: var(--solid);
+                  stroke-width: 3.5px; stroke-linejoin: round; }
+.chart .plab.strong { fill: var(--fg); font-weight: 700; font-size: 13.5px; }
+.chart .plab.dim { fill: var(--fg-3); font-weight: 500; font-size: 12.5px; }
+.chart .gapline { stroke: var(--paver); stroke-width: 1.6; fill: none; opacity: 0.7; }
+.chart .gaplab { fill: var(--paver); font: 700 var(--fs-chart-label) var(--sans); }
+/* the wording already says whether it is a win; recolouring it as well made
+   the same annotation look like two different things */
+.chart:not(.run) .twarrow, .chart:not(.run) .twarrow-glow { opacity: 0; }
+.chart.run .twarrow { opacity: 1; transition: opacity var(--t-slow) ease var(--t-slow); }
+.chart.run .twarrow-glow { opacity: 0.16; transition: opacity var(--t-slow) ease var(--t-slow); }
+
+.chart .spine { stroke: rgb(var(--line) / calc(var(--line-a) * 2.4)); stroke-width: 1.4; }
+
+
+/* users who ask for less transparency or more contrast get flat, opaque surfaces */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .card { background: var(--solid) !important;
+          -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .card.near { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  .segbar { background: rgb(var(--line) / 0.14) !important; }
+  .segbar .thumb { -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+                   background: var(--solid) !important;
+                   box-shadow: 0 0 0 1px rgb(var(--line) / 0.4) inset !important; }
+  .bar, header.bar { -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+                     background: var(--solid) !important; }
+  .aurora { display: none; }
+  .tip { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
+@media (prefers-contrast: more) {
+  :root { --fg-3: var(--fg-2); }
+  .chart .grid { stroke: rgb(var(--line) / 0.34); }
+}
+/* the search field must not force a horizontal scrollbar on a small phone */
+input[type="search"] { min-width: 0; width: min(240px, 100%); }
+
+/* ── late corrections ─────────────────────────────────────────────────── */
+/* a wide supplement table scrolls in its own box and keeps its row header */
+.tblock table { table-layout: auto; }
+.tblock td, .tblock th { white-space: nowrap; }
+.tblock th.stick { white-space: normal; min-width: 8.5rem; }
+/* the scroller shows it can move: a soft edge fade on both sides */
+.scroller { position: relative; scrollbar-width: thin;
+            overscroll-behavior-x: contain; }
+/* selectable, aligned numbers everywhere a metric is printed */
+td, .val, .kpi .k-num { font-variant-numeric: tabular-nums; }
+/* an image that fails to load must not collapse the layout */
+img { min-height: 1px; }
+figure img[data-failed] { outline: 1px dashed rgb(var(--line) / 0.4); padding: var(--s8) 0;
+                          object-fit: contain; }
+/* the viewer's backdrop never scrolls the page behind it */
+body.locked { overflow: hidden; }
+/* a card that holds a chart keeps its own stacking context off the glass */
+.card .chart { display: block; width: 100%; height: auto; }
+/* print: drop the glass, keep the content */
+@media print {
+  header.bar, nav, .segbar, #galMore, #top, .aurora { display: none !important; }
+  .card { background: #fff !important; box-shadow: none !important; break-inside: avoid; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; color: #555; }
+  /* a chart clipped at the page edge is worse than a small chart */
+  .chart { max-width: 100%; height: auto; }
+  .scroller { max-height: none; overflow: visible; border: 1px solid #ccc; }
+  thead th { position: static; }
+  th.stick, td.stick { position: static; }
+  /* both panes print, since the reader cannot switch a tab on paper */
+  .pane[hidden] { display: block !important; }
+  section { break-before: auto; }
+}
+
+/* browsers without color-mix fall back to solid token colours */
+@supports not (color: color-mix(in srgb, #000 50%, #fff)) {
+  .chart .bar .fill { fill: var(--fg-3); }
+  .chart .bar.ours .fill { fill: var(--paver); }
+  .kpi .k-plot .base { fill: var(--fg-3); }
+}
+
+/* an author name links out without breaking the byline's weight */
+a.author { color: inherit; text-decoration: none;
+           border-bottom: 1px solid rgb(var(--line) / calc(var(--line-a) * 2)); }
+a.author:hover, a.author:focus-visible { color: var(--accent); border-bottom-color: currentColor; }
+
+/* ── text selection ───────────────────────────────────────────────────── */
+/* every run of prose, every table cell and every chart label is selectable and
+ * copyable; a press-and-drag over a figure selects text instead of starting a
+ * native image drag. */
+body, .card, .wrap, main, section, footer,
+p, li, h1, h2, h3, h4, span, code, pre, td, th, caption, figcaption, svg text {
+  -webkit-user-select: text;
+  user-select: text;
+}
+img, .frame, .plate, video {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+/* the viewer's own image is dragged to pan, so it stays unselectable */
+/* a chart's hover target keeps its own cursor; labels stay selectable */
+.chart g.bar, .chart g.pt { cursor: default; }
+
+/* ── select (shadcn-style trigger and popover) ─────────────────────────── */
+.sselect { position: relative; display: inline-flex; }
+.sselect::after { content: none; }                 /* the chevron lives in the trigger */
+.strigger {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  height: 38px; min-width: 240px; max-width: 100%;
+  padding: 0 var(--s3) 0 var(--s4);
+  font: 500 var(--fs-meta)/1 var(--sans); color: var(--fg);
+  background: var(--solid);
+  border: 1px solid rgb(var(--line) / calc(var(--line-a) * 1.7));
+  border-radius: 10px; cursor: pointer;
+  box-shadow: 0 1px 2px rgb(16 26 46 / 0.05);
+  transition: border-color var(--t-base), box-shadow var(--t-base);
+}.strigger:hover, .strigger:focus-visible { border-color: rgb(var(--line) / calc(var(--line-a) * 2.6)); }
+.strigger[aria-expanded="true"] { border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.strigger .slabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.strigger .schev { flex: none; width: 8px; height: 8px; margin-top: -4px;
+  border-right: 1.6px solid var(--fg-3); border-bottom: 1.6px solid var(--fg-3);
+  transform: rotate(45deg); transition: transform var(--t-base); }
+.strigger[aria-expanded="true"] .schev { transform: rotate(225deg); margin-top: 3px; }
+
+.spop {
+  position: absolute; z-index: var(--z-float); top: calc(100% + 6px); left: 0;
+  min-width: 100%; max-height: 320px; overflow-y: auto; padding: var(--s1);
+  background: var(--solid); color: var(--fg);
+  border: 1px solid rgb(var(--line) / calc(var(--line-a) * 1.7));
+  border-radius: 12px;
+  box-shadow: 0 16px 34px -14px rgb(16 26 46 / 0.28), 0 2px 6px rgb(16 26 46 / 0.08);
+  animation: spop-in var(--t-fast) ease-out;
+}
+.sselect.up .spop { top: auto; bottom: calc(100% + 6px); }
+@keyframes spop-in { from { opacity: 0; transform: translateY(-4px) scale(0.985); } }
+@media (prefers-reduced-motion: reduce) { .spop { animation: none; } }
+.sitem {
+  display: flex; align-items: center; gap: var(--s2); width: 100%;
+  padding: var(--s2) var(--s3) var(--s2) var(--s2);
+  font: 400 var(--fs-meta)/1.35 var(--sans); text-align: left; color: var(--fg);
+  background: none; border: 0; border-radius: 8px; cursor: pointer;
+}
+.sitem:hover, .sitem:focus-visible { background: rgb(var(--line) / 0.07); outline: none; }
+.sitem:focus-visible { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.sitem .scheck { flex: none; width: 14px; height: 14px; position: relative; }
+.sitem[aria-selected="true"] { font-weight: 550; }
+.sitem[aria-selected="true"] .scheck::after {
+  content: ""; position: absolute; left: 3px; top: 1px; width: 5px; height: 9px;
+  border-right: 1.8px solid var(--accent); border-bottom: 1.8px solid var(--accent);
+  transform: rotate(42deg);
+}
+.sitem .stext { min-width: 0; }
+
+/* a comparison block boundary inside a row chart */
+.chart .blockrule { stroke: rgb(var(--line) / 0.22); stroke-width: 1; }
+
+/* ── 3D inference viewer ──────────────────────────────────────────────────
+ * Type comes only from the page scale, surfaces only from the card/glass
+ * language, and the checkbox and slider follow the same component idiom as the
+ * select: token border, token radius, accent fill, focus ring. */
+.wvbar { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s5); align-items: center;
+         justify-content: space-between; }
+.wvbarL { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center;
+           margin-right: auto; }
+/* the model toggle trails the row, with the overlay slider next to it */
+.wvbarR { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; }
+/* the viewpoint sits under the panes it steers, centred over the transport */
+.wvbar3d { justify-content: center; }
+
+/* ── attention layer ──────────────────────────────────────────────────────
+ * Two rows of the same six cameras, one per model, so the columns line up and
+ * the two attributions can be compared without flipping between views. */
+/* an attribute must beat a class here, or the control shows in the wrong layer */
+.wvfade[hidden] { display: none; }
+.wvfade { display: inline-flex; align-items: center; gap: var(--s3);
+          font: 600 var(--fs-label)/1 var(--sans); letter-spacing: 0.05em;
+          text-transform: uppercase; color: var(--fg-3); }
+.wvfade b { font: 600 var(--fs-meta)/1 var(--sans); text-transform: none;
+            letter-spacing: 0; color: var(--fg); font-variant-numeric: tabular-nums;
+            min-width: 3.2em; }
+.wvfade input[type="range"] {
+  appearance: none; -webkit-appearance: none; margin: 0; width: 120px; height: 16px;
+  background: none; cursor: pointer;
+}
+.wvfade input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px; border-radius: var(--radius-pill); background: rgb(var(--line) / 0.16); }
+.wvfade input[type="range"]::-moz-range-track {
+  height: 5px; border-radius: var(--radius-pill); background: rgb(var(--line) / 0.16); }
+.wvfade input[type="range"]::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none; margin-top: -5.5px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--solid); border: 1.5px solid var(--accent);
+  box-shadow: 0 1px 2px rgb(16 26 46 / 0.22); }
+.wvfade input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px; border: 1.5px solid var(--accent); border-radius: 50%;
+  background: var(--solid); }
+
+.wvcams.attn.focus { grid-template-columns: 1fr; }
+.wvcam.gc { padding: 0; border: 0; cursor: zoom-in; display: block; width: 100%;
+            background: var(--plot-bg); }
+.wvcams.attn.focus .wvcam.gc { cursor: zoom-out; }
+.wvcam.gc img { display: block; width: 100%; height: auto; }
+/* the overlay sits exactly on the original, so the crossfade reveals the input */
+.wvcam.gc .wvunder { position: absolute; inset: 0; }
+.wvcam.gc { position: relative; aspect-ratio: 16 / 9; overflow: hidden; }
+.wvcam.gc .wvover { position: absolute; inset: 0; transition: opacity var(--t-fast) linear; }
+.wvcam.gc .wvover.mosaic { background-repeat: no-repeat; }
+.wvcam.gc:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wvcams.attn .wvcamname { font-size: 11px; padding: 2px 6px; }
+.wvcams.attn.focus .wvcamname { font-size: var(--fs-label); padding: 3px var(--s2); }
+
+/* the surround view: three cameras forward, three back */
+.wvcams { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); }
+@media (max-width: 700px) { .wvcams { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) {
+  #viewer3d .chead .actions { width: 100%; margin-left: 0; flex-direction: column; align-items: stretch; }
+  #viewer3d .field { display: grid; grid-template-columns: auto minmax(0, 1fr); width: 100%; }
+  #viewer3d .field .select, #viewer3d .field select,
+  #viewer3d .field .sselect, #viewer3d .field .strigger { min-width: 0; width: 100%; }
+  #viewer3d .wvfade { width: 100%; }
+  #viewer3d .wvfade input[type="range"] { flex: 1; min-width: 80px; width: auto; }
+  #viewer3d .wvhead { flex-direction: column; align-items: flex-start; gap: var(--s1); border-radius: 10px; }
+  #viewer3d .wvname { overflow: visible; text-overflow: clip; }
+}
+.wvcam { position: relative; border-radius: 10px; overflow: hidden;
+         background: var(--plot-bg); }
+.wvcamcv { display: block; width: 100%; height: auto; }
+.wvcamname { position: absolute; left: var(--s2); bottom: var(--s2);
+             padding: 3px var(--s2); border-radius: 6px;
+             font: 600 var(--fs-label)/1 var(--sans); letter-spacing: 0.03em;
+             color: var(--fg-2);
+             -webkit-backdrop-filter: blur(8px) saturate(160%);
+             backdrop-filter: blur(8px) saturate(160%);
+             background: rgb(var(--surface) / var(--surface-hi));
+             box-shadow: inset 0 1px 0.5px rgb(255 255 255 / var(--sheen)); }
+.wvstage { display: grid; grid-template-columns: 1fr; gap: var(--s3); }
+.wvstage.two { grid-template-columns: 1fr 1fr; }
+@media (max-width: 860px) { .wvstage.two { grid-template-columns: 1fr; } }
+
+.wvpane { position: relative; border-radius: var(--radius); overflow: hidden;
+          background:
+            radial-gradient(130% 100% at 50% 0%,
+              rgb(var(--line) / 0.05), rgb(var(--line) / 0.015) 62%, transparent),
+            var(--plot-bg); }
+.wvcanvas { display: block; width: 100%; height: 430px; cursor: grab; touch-action: none; }
+.wvcanvas.grabbing { cursor: grabbing; }
+/* two panes are square, so the two scenes are directly comparable */
+.wvstage.two .wvcanvas { height: auto; aspect-ratio: 1 / 1; }
+@media (max-width: 860px) {
+  .wvcanvas { height: 320px; }
+  .wvstage.two .wvcanvas { height: auto; aspect-ratio: 1 / 1; }
+}
+
+/* floating chrome over the scene uses the glass recipe: dimming layer, top
+   highlight, raised shadow — the same language as the segmented control */
+.wvhead, .wvtag {
+  position: absolute; z-index: var(--z-raised); border-radius: var(--radius-pill);
+  -webkit-backdrop-filter: blur(10px) saturate(170%);
+  backdrop-filter: blur(10px) saturate(170%);
+  background: rgb(var(--surface) / var(--surface-hi));
+  box-shadow: inset 0 1px 0.5px rgb(255 255 255 / var(--sheen)),
+              0 1px 2px rgb(0 0 0 / 0.14), 0 6px 14px -8px rgb(0 0 0 / 0.22);
+}
+.wvhead { inset: var(--s3) var(--s3) auto var(--s3); display: inline-flex; align-items: baseline;
+          gap: var(--s3); width: max-content; max-width: calc(100% - var(--s6));
+          padding: var(--s2) var(--s4); pointer-events: none; }
+/* one line: the model name gives way first, the metrics never shrink or clip */
+.wvname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wvmetrics { flex: none; display: inline-flex; align-items: baseline; gap: var(--s3);
+             white-space: nowrap; }
+.wvname { font: 600 var(--fs-meta)/1 var(--sans); color: var(--fg-2); }
+.wvpane.ours .wvname { color: var(--paver); }
+.wvl2 { font: 500 var(--fs-meta)/1 var(--sans); color: var(--fg-2);
+        font-variant-numeric: tabular-nums; }
+/* Three separate signals, three separate colours: the PAVER blue is the model's
+   identity, so a better planning L2 is marked in the success green and a clean
+   frame stays neutral. Only a counted collision is red. */
+.wvl2.win { color: var(--accent-3); font-weight: 700; }
+.wvl2.win::after { content: " ↓"; font-weight: 600; }
+.wvcol { font: 500 var(--fs-meta)/1 var(--sans); color: var(--fg-3); }
+.wvcol.clear { color: var(--fg-3); }
+.wvcol.hit { color: var(--bad); font-weight: 700; }
+/* a frame the evaluator does not score keeps its slot, dimmed */
+.wvl2.none, .wvcol.none { color: var(--fg-3); opacity: 0.55; }
+.wvtag { inset: auto var(--s3) var(--s3) auto; max-width: calc(100% - var(--s6));
+         padding: var(--s2) var(--s4);
+         font: 500 var(--fs-meta)/1.35 var(--sans); color: var(--fg);
+         font-variant-numeric: tabular-nums;
+         opacity: 0; transition: opacity var(--t-fast); pointer-events: none; }
+.wvtag.on { opacity: 1; }
+
+.wvfoot { display: flex; flex-wrap: wrap; gap: var(--s5) var(--s7);
+          align-items: flex-start; justify-content: space-between; }
+/* a labelled group on one row: the label names the controls beside it */
+.wvgroup { display: flex; flex-direction: row; align-items: center;
+           gap: var(--s4); min-width: 0; flex-wrap: wrap; }
+.wvgl, .wvgl label {
+  font: 600 var(--fs-label)/1 var(--sans); letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--fg-3);
+}
+/* Layer switches. Each layer is independently on or off, so the control is a
+   row of switches rather than a segmented selection, and it carries no colour
+   chip: boxes are coloured per class and the map per element type, which no
+   single swatch can stand for. */
+.wvtoggles { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); align-items: center; }
+.wvsw { display: inline-flex; align-items: center; gap: var(--s2); cursor: pointer;
+        -webkit-user-select: none; user-select: none; }
+.wvsw input {
+  appearance: none; -webkit-appearance: none; position: absolute;
+  width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.wvsw .tr {
+  position: relative; flex: none; width: 30px; height: 18px;
+  border-radius: var(--radius-pill);
+  background: rgb(var(--line) / 0.20);
+  box-shadow: inset 0 1px 1.5px rgb(0 0 0 / 0.10);
+  transition: background var(--t-base) ease;
+}
+.wvsw .tr::after {
+  content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--solid);
+  box-shadow: 0 1px 2px rgb(16 26 46 / 0.28);
+  transition: transform var(--t-base) cubic-bezier(.34, 1.3, .38, 1);
+}
+.wvsw .lb { font: 500 var(--fs-meta)/1 var(--sans); color: var(--fg-3);
+            transition: color var(--t-base) ease; }.wvsw:hover .tr, .wvsw:focus-visible .tr { background: rgb(var(--line) / 0.28); }.wvsw:hover .lb, .wvsw:focus-visible .lb { color: var(--fg-2); }
+.wvsw input:checked + .tr { background: var(--accent); }
+.wvsw input:checked + .tr::after { transform: translateX(12px); }
+.wvsw input:checked ~ .lb { color: var(--fg); }
+.wvsw input:focus-visible + .tr {
+  box-shadow: inset 0 1px 1.5px rgb(0 0 0 / 0.10),
+              0 0 0 3px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .wvsw .tr, .wvsw .tr::after { transition: none; }
+}
+
+.wvscore { display: inline-flex; align-items: center; gap: var(--s3); height: 32px; }
+.wvscore b { font: 600 var(--fs-meta)/1 var(--sans); color: var(--fg);
+             font-variant-numeric: tabular-nums; min-width: 2.4em; }
+.wvscore input[type="range"] {
+  appearance: none; -webkit-appearance: none; margin: 0;
+  width: 136px; height: 16px; background: none; cursor: pointer;
+}
+.wvscore input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px; border-radius: var(--radius-pill); background: rgb(var(--line) / 0.16);
+}
+.wvscore input[type="range"]::-moz-range-track {
+  height: 5px; border-radius: var(--radius-pill); background: rgb(var(--line) / 0.16);
+}
+.wvscore input[type="range"]::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none; margin-top: -5.5px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--solid); border: 1.5px solid var(--accent);
+  box-shadow: 0 1px 2px rgb(16 26 46 / 0.22); transition: box-shadow var(--t-base);
+}
+.wvscore input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--solid); border: 1.5px solid var(--accent);
+  box-shadow: 0 1px 2px rgb(16 26 46 / 0.22);
+}
+.wvscore input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+/* ── transport ────────────────────────────────────────────────────────────
+ * One glass strip: a filled play control, a rail that shows both the elapsed
+ * fraction and every keyframe as a tick, a monospaced clock, and a loop toggle.
+ * The rail is a real slider (role, arrow keys, drag to scrub), not a styled
+ * native input, so the filled portion and the ticks can be drawn at all. */
+.wvtransport {
+  display: flex; align-items: center; gap: var(--s4);
+  padding: var(--s2) var(--s4); border-radius: var(--radius-pill);
+  background: var(--seg-track);
+}
+
+.wvplay {
+  flex: none; width: 36px; height: 36px; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 50%;
+  color: #fff; background: var(--accent);
+  box-shadow: inset 0 1px 0.5px rgb(255 255 255 / 0.45),
+              0 1px 2px rgb(16 26 46 / 0.22), 0 6px 14px -8px var(--accent);
+  transition: transform var(--t-base) cubic-bezier(.34, 1.3, .38, 1), filter var(--t-base);
+}.wvplay:hover, .wvplay:focus-visible { filter: brightness(1.07); }
+.wvplay:active { transform: scale(0.94); }
+.wvplay svg { width: 16px; height: 16px; fill: currentColor; }
+.wvplay .ic-pause { display: none; }
+.wvplay.playing .ic-play { display: none; }
+.wvplay.playing .ic-pause { display: inline; }
+
+.wvtrack { position: relative; flex: 1 1 auto; min-width: 0; height: 28px;
+           cursor: pointer; touch-action: none; }
+.wvrail { position: absolute; inset: 50% 0 auto; transform: translateY(-50%);
+          height: 5px; border-radius: var(--radius-pill);
+          background: rgb(var(--line) / 0.17); overflow: hidden; }
+.wvfill { height: 100%; width: 0;
+          background: linear-gradient(90deg,
+            color-mix(in srgb, var(--accent) 62%, transparent), var(--accent));
+          transition: width var(--t-fast) linear; }
+.wvtrack.scrubbing .wvfill { transition: none; }
+.wvknob { position: absolute; top: 50%; left: 0; width: 15px; height: 15px;
+          margin: -7.5px 0 0 -7.5px; border-radius: 50%; pointer-events: none;
+          background: var(--solid); border: 1.5px solid var(--accent);
+          box-shadow: 0 1px 3px rgb(16 26 46 / 0.28);
+          transition: left var(--t-fast) linear, transform var(--t-base); }
+.wvtrack.scrubbing .wvknob { transition: transform var(--t-base); transform: scale(1.18); }.wvtrack:hover .wvknob, .wvtrack:focus-visible .wvknob { transform: scale(1.12); }
+.wvtrack:focus-visible { outline: none; }
+.wvtrack:focus-visible .wvknob {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 26%, transparent); }
+
+.wvclock { flex: none; display: inline-flex; align-items: baseline; gap: 2px;
+           font: 500 var(--fs-meta)/1 var(--sans); color: var(--fg-3);
+           font-variant-numeric: tabular-nums; letter-spacing: -0.005em; }
+.wvclock b { font-weight: 600; color: var(--fg); }
+.wvclock i { font-style: normal; opacity: 0.5; padding: 0 1px; }
+
+/* playback speed: the same pressed-segment language as the layer bar */
+.wvspeed { flex: none; display: inline-flex; gap: 1px; }
+.wvspeed button {
+  border: 0; cursor: pointer; padding: 0 var(--s2); height: 26px; min-width: 34px;
+  border-radius: 8px; background: none; color: var(--fg-3);
+  font: 500 var(--fs-meta)/1 var(--sans); font-variant-numeric: tabular-nums;
+  transition: color var(--t-base), background var(--t-base);
+}.wvspeed button:hover, .wvspeed button:focus-visible { color: var(--fg-2); background: rgb(var(--line) / 0.07); }
+.wvspeed button[aria-pressed="true"] {
+  color: var(--fg); font-weight: 700; background: rgb(var(--line) / 0.09);
+}
+.wvspeed button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wvcanvas.panning { cursor: move; }
+
+.wvlegend { display: flex; flex-wrap: wrap; justify-content: center;
+            gap: var(--s2) var(--s4); }
+.wvkey i.ramp { width: 26px; border-radius: 2px;
+                background: linear-gradient(90deg, #10b981, #3b82f6); }
+.wvkey { display: inline-flex; align-items: center; gap: var(--s2);
+         font: 400 var(--fs-meta)/1 var(--sans); color: var(--fg-3); }
+.wvkey i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .wvhead, .wvtag { -webkit-backdrop-filter: none; backdrop-filter: none;
+                    background: var(--solid); }
+}
+
+/* ── states that were never styled ──────────────────────────────────────── */
+/* a disabled tab looked exactly like an enabled one, so a mode that is not
+   available for the selected architecture read as merely unselected */
+.segbar button:disabled,
+.btn:disabled { opacity: 0.42; cursor: not-allowed; }.segbar button:disabled:hover, .segbar button:disabled:focus-visible { color: var(--fg-2); }
+
+/* every control acknowledges the press, not just the play button */
+.btn:active:not(:disabled),
+.segbar button:active:not(:disabled) { transform: scale(0.97); }
+.btn { transition: transform var(--t-fast) cubic-bezier(.34,1.3,.38,1), color var(--t-base), background var(--t-base); }
+
+/* an image that failed to load says so instead of showing a broken glyph */
+img[data-failed] { object-fit: contain; background: var(--seg-track);
+                   min-height: 90px; padding: var(--s5); }
+
+/* while a pane is fetching, the surface reads as busy rather than empty */
+[aria-busy="true"] { position: relative; }
+[aria-busy="true"]::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(100deg, transparent 20%,
+              rgb(var(--line) / 0.10) 50%, transparent 80%);
+  background-size: 220% 100%; animation: sweep 1.2s linear infinite;
+  pointer-events: none;
+}
+@keyframes sweep { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+@media (prefers-reduced-motion: reduce) { [aria-busy="true"]::after { animation: none; } }
+
+/* an empty result says what to do next */
+.empty { padding: var(--s6); text-align: center; color: var(--fg-3);
+         font-size: var(--fs-meta); }
+
+/* ── motion, targets, links ─────────────────────────────────────────────── */
+/* eight different durations read as eight different components; three steps
+   cover everything: a press, a state change, and a layout move */
+:root { --t-fast: .12s; --t-base: .2s; --t-slow: .42s; }
+
+/* a control small enough to miss is a control that gets missed */
+.btn, .segbar button, .select select { min-height: 34px; }
+@media (pointer: coarse) {
+  .btn, .segbar button, .select select { min-height: 44px; }
+  .wvplay { width: 44px; height: 44px; }
+}
+
+/* a link inside running text looks like a link before it is hovered */
+.lead a, .caption a, .foot a, p a:not(.btn) {
+  text-decoration: underline; text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}.lead a:hover, .lead a:focus-visible, .caption a:hover, .caption a:focus-visible, .foot a:hover, .foot a:focus-visible, p a:not(.btn):hover, p a:not(.btn):focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* every interactive element shows focus, not only the six that had a rule */
+a:focus-visible, button:focus-visible, select:focus-visible,
+input:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px;
+}
+
+/* the field says how to clear itself */
+input[type="search"] { -webkit-appearance: none; appearance: none; }
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; cursor: pointer;
+  background: currentColor; opacity: 0.45;
+  mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" stroke="black" stroke-width="2" fill="none"/></svg>') center/contain no-repeat;
+}input[type="search"]::-webkit-search-cancel-button:hover, input[type="search"]::-webkit-search-cancel-button:focus-visible { opacity: 0.9; }
+
+/* readers who ask for less motion get none of it, not just less of it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important; scroll-behavior: auto !important;
+  }
+}
+
+/* ── table affordances ──────────────────────────────────────────────────── */
+/* a table that scrolls sideways says so at the edge it can move toward */
+.scroller {
+  --table-scroll-shadow-color: 184 188 196;
+  --table-scroll-shadow-opacity: 0.20;
+  --table-scroll-shadow-width: 21px;
+  --table-scroll-cover-width: 51px;
+  background-image:
+    linear-gradient(to right, var(--table-bg) 30%, transparent),
+    linear-gradient(to left,  var(--table-bg) 30%, transparent),
+    linear-gradient(to right, rgb(var(--table-scroll-shadow-color) / var(--table-scroll-shadow-opacity)), rgb(var(--table-scroll-shadow-color) / 0) var(--table-scroll-shadow-width)),
+    linear-gradient(to left,  rgb(var(--table-scroll-shadow-color) / var(--table-scroll-shadow-opacity)), rgb(var(--table-scroll-shadow-color) / 0) var(--table-scroll-shadow-width));
+  background-position: left center, right center, left center, right center;
+  background-repeat: no-repeat;
+  background-size: var(--table-scroll-cover-width) 100%, var(--table-scroll-cover-width) 100%, var(--table-scroll-shadow-width) 100%, var(--table-scroll-shadow-width) 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+
+/* a select is easier to aim at when its label is visible, not only announced */
+.field { display: inline-flex; align-items: center; gap: var(--s2); }
+.field > .lbl { font-size: var(--fs-label); color: var(--fg-3); white-space: nowrap; }
+
+/* icons draw at a fixed size instead of inheriting the text size, so every
+   round button looks the same weight */
+.btn.icon .ic, .ic { width: 18px; height: 18px; display: block; }
+.btn.icon { display: inline-flex; align-items: center; justify-content: center; }
+
+/* the title carries hyphenated compounds; breaking inside them reads as two
+   different words, so breaks are allowed only between words */
+.hero h1 { overflow-wrap: normal; word-break: keep-all; hyphens: none; }
+@media (max-width: 700px) { .hero h1 { font-size: clamp(1.7rem, 8.2vw, 2.4rem); } }
+
+/* the bar keeps the short title once the nav collapses, so a scrolled page
+   still says what it is */
+.bar .barname { display: none; font-weight: 650; font-size: var(--fs-meta);
+                letter-spacing: -0.01em; color: var(--fg); }
+/* Once the nav collapses, #menu's auto margin pushed the title to the right
+   edge, straight under the absolutely-positioned theme button. Anchor the
+   title beside the menu instead and let it claim the free space. */
+@media (max-width: 860px) {
+  .bar .barname { display: block; margin-right: auto; }
+  .bar #menu    { margin-right: var(--s3); }
+}
+
+/* the back-to-top button sits clear of content on small screens */
+@media (max-width: 700px) { #top { inset: auto var(--s4) calc(var(--s4) + env(safe-area-inset-bottom)) auto; } }
+
+/* ── table captions and spacing ─────────────────────────────────────────── */
+/* the caption sat inside the table, repeating the card title and scrolling
+   with the columns; it belongs under the table, in the tone of a note */
+/* a table caption and a figure caption are the same kind of text, so they share
+   one treatment; only the element they follow differs. --fs-label is reserved
+   for uppercase chips, and using it here made table captions a size smaller
+   than the figure captions beside them. */
+.tcap {
+  margin: var(--s3) 0 0;
+  font-size: var(--fs-meta);
+  line-height: 1.6;
+  color: var(--fg-3);
+  max-width: 92ch;
+}
+.tcap + .foot { margin-top: var(--s2); }
+
+/* a table needs air above it: the lead ran straight into the header row */
+.scroller { margin-top: var(--s5); }
+.pane > .scroller:first-child { margin-top: var(--s4); }
+
+/* the sentence above a table introduces it, so it reads at body tone but does
+   not compete with the card title */
+.card > .lead { color: var(--fg-2); }
+
+/* ── series without colour ──────────────────────────────────────────────── */
+/* baseline and PAVER were told apart by hue alone. A hatch on the baseline
+   fill keeps them separable when the hues are not. */
+.chart defs .hatchpat { }
+.chart .bar:not(.ours) .fill { }
+@supports (fill: url(#x)) {
+  .chart .bar:not(.ours) .fill { stroke: rgb(var(--line) / 0.10); stroke-width: 1; }
+}
+/* the PAVER series keeps a heavier edge, so the pair reads as two weights as
+   well as two hues */
+.chart .bar.ours .fill { stroke: color-mix(in srgb, var(--paver) 70%, transparent);
+                         stroke-width: 1.5; }
+
+/* the hero bars say what they are measured against */
+.kpi .k-scale { display: flex; justify-content: space-between;
+                font-size: var(--fs-label); color: var(--fg-3); margin-top: var(--s1); }
+
+/* a figure and its caption are one unit, so they never break apart */
+figure.fig { margin: 0; break-inside: avoid; }
+figure.fig > .caption { margin-top: var(--s3); }
+
+.wvnote { font-size: var(--fs-label); color: var(--fg-3); margin-left: var(--s3); }
+
+/* Chart type scale. These were hardcoded px values, so charts did not follow the
+   page's type scale and drifted from the body text at other zoom levels. */
+:root {
+  --fs-chart-tick:  0.8125rem;  /* 13px */
+  --fs-chart-axis:  0.875rem;   /* 14px */
+  --fs-chart-label: 0.8125rem;  /* 13px */
+  --fs-chart-small: 0.75rem;    /* 12px */
+  --fs-chart-mini:  0.6875rem;  /* 11px */
+}
+
+
+/* Layer scale. Eleven ad-hoc z-index values had accumulated, so adding anything
+   meant guessing which number would win. Every stacked element now names a
+   layer instead of picking a number. */
+:root {
+  --z-below:    -1;   /* behind its own content, e.g. a segmented thumb */
+  --z-raised:    2;   /* sticky table header                            */
+  --z-sticky:    4;   /* frozen first column                            */
+  --z-header:   80;   /* site header                                    */
+  --z-float:   120;   /* back-to-top, floating controls                 */
+  --z-overlay: 300;   /* nav drawer                                     */
+}
+
+/* ── sortable column headers ──────────────────────────────────────────────
+   The arrow is drawn in a fixed-width slot that is always reserved, so the
+   column does not change width when it becomes the sorted one. */
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable::after {
+  content: "\2195";                      /* up-down arrow: the column can sort */
+  display: inline-block; width: 1em; margin-left: 0.35em;
+  font-size: 0.85em; line-height: 1;
+  color: var(--fg-3); opacity: 0.45;
+  transition: opacity var(--t-fast) ease, color var(--t-fast) ease;
+}th.sortable:hover::after, th.sortable:focus-visible::after { opacity: 0.9; }
+th.sortable[aria-sort="ascending"]::after  { content: "\2191"; opacity: 1; color: var(--paver); }
+th.sortable[aria-sort="descending"]::after { content: "\2193"; opacity: 1; color: var(--paver); }th.sortable:hover, th.sortable:focus-visible { color: var(--fg); }
+th.sortable:focus-visible { outline: 2px solid var(--paver); outline-offset: -2px; }
+th.sorted { color: var(--fg); }
+
+/* the arrow is decoration; the state is announced through aria-sort */
+@media print { th.sortable::after { content: ""; } }
+@media (prefers-reduced-motion: reduce) { th.sortable::after { transition: none; } }
+
+@media (max-width: 620px) {
+  .wvtransport { flex-wrap: wrap; }
+}
+
+/* A metric switch that belongs to the plot above it: centred under the chart,
+   with the stack gap pulled in so it reads as part of the figure rather than
+   as the next block down. */
+.segbar.center { margin-left: auto; margin-right: auto; }
+.stack > .segbar.tight { margin-top: calc(var(--s5) * -1 + var(--s2)); }
+.pane > .segbar.tight, .pane > .chips.tight { margin-top: var(--s2); }
+
+/* ── table state line, missing-value weight, numeric alignment ────────────
+   (audit items 4, 5, 7, 8, 9, 11) */
+.tstate { margin: 0 0 var(--s2); font-size: var(--fs-label);
+          color: var(--fg-3); letter-spacing: 0; }
+
+/* "none" is the absence of a measurement, not a measurement, so it must not
+   carry the same weight as the numbers around it */
+.scroller td { text-align: right; font-variant-numeric: tabular-nums lining-nums; }
+.scroller td:first-child, .scroller th[scope="row"] { text-align: left; }
+.scroller td.na { color: var(--fg-3); }/* the row highlight stopped at the frozen first column, so a wide row lit up
+   everywhere except where the reader was looking */
+tbody tr:hover th.stick, so a wide row lit up
+   everywhere except where the reader was looking */
+tbody tr:focus-visible th.stick, tbody tr:hover td.stick, tbody tr:focus-visible td.stick { background: var(--table-hover); }tbody tr:hover td, tbody tr:focus-visible td { background: var(--table-hover); }
+
+/* ── nuScenes qualitative clips ───────────────────────────────────────────
+   The clips are a 6-camera grid over an attribution grid, so they are tall and
+   wide at once; the stage keeps their aspect and never lets the page scroll
+   sideways to fit one. */
+.qvstage { margin-top: var(--s4); border-radius: var(--radius); overflow: hidden;
+           background: #000; cursor: pointer; }
+.qvstage:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.qvstage video { display: block; width: 100%; height: auto; }
+.qvstage .empty { margin: 0; padding: var(--s7); text-align: center;
+                  color: var(--fg-3); background: var(--surface-solid, var(--solid)); }
+#qvSceneNote { margin-top: var(--s3); }
+/* the architecture switch is the card's primary control, so it sits on its
+   own line under the header rather than crowding the scene select */
+#qvArch { margin-top: var(--s5); }
+#qvSceneNote { margin-top: var(--s3); }
+
+
+/* ── audit: 10, 21, 30, 44, 47 ────────────────────────────────────────────
+   10: the scrollbar on a table was thin enough to miss, so a table wider than
+       its column looked complete. Give it a visible track on hover.
+   21: several series were separated by colour alone; the dashed reference and
+       hollow markers now also differ in weight so the distinction survives
+       greyscale and the common colour-vision deficiencies.
+   44: 23 cards all carried the same elevation, so nothing led. The two cards a
+       reader should start from are raised; the rest sit flat.
+   47: a section heading landed under the sticky header when linked to. */
+.scroller { scrollbar-width: thin; }
+.scroller:hover { scrollbar-color: rgb(var(--line) / 0.5) transparent; }
+.scroller::-webkit-scrollbar { height: 10px; }
+.scroller::-webkit-scrollbar-thumb { background: rgb(var(--line) / 0.35);
+                                     border-radius: 99px; }
+.scroller:hover::-webkit-scrollbar-thumb { background: rgb(var(--line) / 0.55); }
+
+.chart .ref { stroke-width: 1.6; }
+.pt.rep circle { stroke-dasharray: 3 2.5; }
+
+.card.lead-card { box-shadow: var(--shadow-lift, var(--shadow)); }
+
+section[id] > .wrap > .shead { scroll-margin-top: calc(var(--bar-h) + var(--s5)); }
+
+/* 16: a missing measurement is not a measurement, so it is set quieter and
+   carries the reason rather than leaving the reader to guess */
+.na { color: var(--fg-3); font-variant: small-caps; letter-spacing: 0.02em;
+      text-decoration: none; border-bottom: 1px dotted rgb(var(--line) / 0.5); }
+
+/* 13: charts only scaled with the viewport, so at phone width every label was
+   rendered at a third of its intended size. Below the breakpoint the SVG keeps
+   a readable minimum and the container scrolls instead of shrinking further. */
+@media (max-width: 640px) {
+  .card > [id^="chart"], .pane > [id^="chart"] { overflow-x: auto; }
+  .card > [id^="chart"] > svg, .pane > [id^="chart"] > svg { min-width: 560px; }
+  .qvstage video { min-width: 0; }
+}
+
+.qvstage[data-state="loading"] video { opacity: 0.6; }
+.qvstage[data-state="failed"]::after {
+  content: "This clip could not be loaded"; display: block; padding: var(--s7);
+  text-align: center; color: var(--fg-3);
+}
+#qvTransport, #qvTopTransport { margin-top: var(--s3); }
+
+
+/* ── clip frame ───────────────────────────────────────────────────────────
+   The step controls belong on the picture, where the eye already is, not
+   beside a dropdown in the header. They sit over the edges of the frame and
+   stay clear of the video's own surface on narrow screens. */
+.qvframe { position: relative; margin-top: var(--s4); }
+.qvnav {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: var(--z-raised);
+  width: 44px; height: 44px; aspect-ratio: 1; padding: 0; box-sizing: border-box;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%; cursor: pointer;
+  background: rgb(6 9 14 / 0.52); color: #fff;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity var(--t-base) ease, background var(--t-fast) ease;
+}
+.qvframe:hover .qvnav, .qvnav:focus-visible { opacity: 1; }
+.qvnav:hover, .qvnav:focus-visible { background: rgb(6 9 14 / 0.72); }
+.qvnav.prev { left: var(--s3); }
+.qvnav.next { right: var(--s3); }
+.qvnav .ic { width: 22px; height: 22px; }
+/* on touch there is no hover to reveal them, so they are simply always there */
+@media (pointer: coarse) { .qvnav { opacity: 1; width: 48px; height: 48px; } }
+@media (prefers-reduced-transparency: reduce) {
+  .qvnav { backdrop-filter: none; background: rgb(6 9 14 / 0.85); }
+}
+
+/* ── print (audit 1–6) ────────────────────────────────────────────────────
+   A page printed for review should carry the figures and tables and nothing a
+   reader cannot operate on paper. */
+@media print {
+  .qvnav, .wvtransport, .tstate, #qvSpeed { display: none !important; }
+  .qvframe { break-inside: avoid; }
+  .qvstage video { max-height: 12cm; }
+  /* 3: the printed sheet says which selection it was taken from */
+  .card > .chead .titles::after {
+    content: attr(data-state); display: block; font-size: 9pt; color: #555;
+  }
+  /* 4: a link is useless on paper unless it says where it goes */
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8.5pt; color: #555; }
+  a[href^="#"]::after { content: ""; }
+  /* 5: a chart split across a page boundary is unreadable */
+  .chart, figure, .scroller, .card { break-inside: avoid; }
+  section { break-before: auto; }
+  /* 6: a dark theme on paper wastes ink and prints grey text on grey */
+  :root, :root[data-theme="dark"] {
+    --bg: #ffffff; --fg: #111318; --fg-2: #333a45; --fg-3: #5a6270;
+    --surface: 255 255 255; --surface-a: 1; --solid: #ffffff;
+    --table-bg: #ffffff; --table-line: #cfd5dd; --line: 17 19 24; --line-a: 0.22;
+  }
+  body { background: #fff !important; }
+  .aurora { display: none !important; }
+}
+
+/* 32: columns hold different decimal counts, so the decimal points did not line
+   up even with tabular figures. Right-aligning the cell is what actually
+   aligns the point when every value in a column shares its precision. */
+.scroller td { font-feature-settings: "tnum" 1, "lnum" 1; }
+/* 31: the tinted row is the pretrained one, said once per table rather than
+   left for the reader to infer from the colour */
+tbody tr.ours th[scope="row"]::after {
+  content: ""; }
+.tstate .legend { color: var(--fg-3); }
+
+/* 30, 31: the filter and the row-tint key sit above the table, on one line */
+.ttools { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap;
+          margin-bottom: var(--s2); }
+.tfilter { flex: 0 1 15rem; min-height: 34px; padding: 0 var(--s3);
+           border-radius: var(--radius-sm, 8px); color: var(--fg);
+           background: var(--table-bg); font-size: var(--fs-label);
+           border: 1px solid rgb(var(--line) / var(--line-a)); }
+.tfilter:focus-visible { outline: 2px solid var(--paver); outline-offset: 1px; }
+.tkey { font-size: var(--fs-label); color: var(--fg-3); }
+.tkey::before { content: ""; display: inline-block; width: 12px; height: 12px;
+                margin-right: 6px; vertical-align: -1px; border-radius: 3px;
+                background: var(--ours-tint, rgb(32 158 255 / 0.14));
+                box-shadow: inset 2px 0 0 var(--paver); }
+@media print { .ttools { display: none !important; } }
+@media (pointer: coarse) { .tfilter { min-height: 44px; } }
+
+/* 43: how far down the page is, as a rule under the header */
+.readbar { position: fixed; top: var(--bar-h); left: 0; height: 2px; width: 0;
+           background: var(--paver); z-index: var(--z-header); pointer-events: none;
+           transition: width var(--t-fast) linear; }
+@media print { .readbar { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { .readbar { transition: none; } }
+
+/* 40: the current section is spoken as well as shown */
+nav#nav a[aria-current="true"] { color: var(--fg); font-weight: 650; }
+
+/* 35: the log axis had a decade grid and nothing between, so an order of
+   magnitude read the same as a factor of two */
+.chart .grid.minor { opacity: 0.45; stroke-dasharray: 2 3; }
+
+/* 12: a failed clip can be retried by clicking it, which nothing said */
+.qvstage[data-state="failed"] { cursor: pointer; }
+.qvstage[data-state="failed"]::after { content: "This clip could not be loaded — click to retry"; }

@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PAVER &middot; Planning-Aligned BEV Encoder Pretraining</title>
+<meta name="description" content="PAVER: Planning-Aligned Pretraining of BEV Representations with Sparse Action-Conditioned Targets for End-to-End Autonomous Driving. Jaeha Song, Soonmin Hwang, Hanyang University.">
+<script>
+(function () {
+  try {
+    var s = localStorage.getItem('paver-theme');
+    if (!s) s = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    document.documentElement.dataset.theme = s;
+  } catch (e) { document.documentElement.dataset.theme = 'dark'; }
+})();
+</script>
+<link rel="canonical" href="https://archiiive99.github.io/PAVER/">
+<link rel="preload" href="assets/font/Lato-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/font/Lato-Semibold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/font/Lato-Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png" sizes="180x180">
+<style>
+@font-face{font-family:"LatoLocal";src:url("assets/font/Lato-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"LatoLocal";src:url("assets/font/Lato-Semibold.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"LatoLocal";src:url("assets/font/Lato-Bold.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"MonoLocal";src:url("assets/font/SourceCodePro-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+</style>
+<meta property="og:type" content="website">
+<meta property="og:title" content="PAVER · Planning-Aligned BEV Encoder Pretraining">
+<meta property="og:description" content="Sparse action-conditioned pretraining targets for the BEV encoder of an end-to-end driving stack.">
+<meta property="og:url" content="https://archiiive99.github.io/PAVER/">
+<meta property="og:image" content="https://archiiive99.github.io/PAVER/assets/social/preview.jpg">
+<meta property="og:image:alt" content="Six surround cameras with predictions above the Grad-CAM of the BEV features">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="PAVER">
+<meta name="twitter:creator" content="@archiiive99">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ScholarlyArticle",
+"headline":"Planning-Aligned Pretraining of BEV Representations with Sparse Action-Conditioned Targets for End-to-End Autonomous Driving",
+"author":[{"@type":"Person","name":"Jaeha Song"},{"@type":"Person","name":"Soonmin Hwang"}],
+"affiliation":{"@type":"Organization","name":"Hanyang University"},
+"url":"https://archiiive99.github.io/PAVER/",
+"image":"https://archiiive99.github.io/PAVER/assets/social/preview.jpg",
+"abstract":"A single pretraining stage supervises the bird’s-eye-view representation where planning reads it, using sparse action-conditioned targets read off one LiDAR sweep."}
+</script>
+<meta name="twitter:image" content="https://archiiive99.github.io/PAVER/assets/social/preview.jpg">
+<meta name="theme-color" content="#e9edf3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070809" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="styles.css?v=restored-heading-style-20260919">
+<script src="dims.js?v=public-cleanup-20260919" defer></script>
+<script src="data.js?v=arxiv-analysis-20260919" defer></script>
+<script src="charts.js?v=arxiv-analysis-20260919" defer></script>
+<script src="webviz.js" defer></script>
+<script src="supp.js" defer></script>
+<script src="app.js?v=arxiv-analysis-20260919" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="aurora" id="aurora"><i></i><i></i><i></i></div>
+
+<header class="bar">
+  <div class="wrap">
+    <button class="btn icon" id="menu" aria-label="Open navigation" aria-expanded="false" aria-controls="nav"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <span class="barname" aria-hidden="true">PAVER</span>
+    <nav id="nav" class="segbar navbar" aria-label="Sections">
+      <span class="thumb hidden" aria-hidden="true"></span>
+      
+      <a href="#scenes" data-covers="scenes">Teaser</a>
+      <a href="#abstract" data-covers="abstract headline visualizer idea overview">Overview</a>
+      <a href="#method" data-covers="method">Method</a>
+      <a href="#results" data-covers="results closedloop ablations">Results</a>
+      <a href="#analysis" data-covers="analysis">Analysis</a>
+      <a href="#supptables" data-covers="supptables">Supplement</a>
+      <a href="#downloads" data-covers="downloads">Citation</a>
+    </nav>
+    <button class="btn icon" id="theme" aria-label="Switch theme" aria-pressed="false"><span aria-hidden="true" id="themeIcon"></span></button>
+  </div>
+</header>
+
+<div class="sr" id="live" role="status" aria-live="polite" aria-atomic="true"></div>
+<main id="main">
+  <div class="hero">
+    <div class="wrap">
+      <div class="chips">
+        
+      </div>
+      <h1>Planning-Aligned Pretraining of BEV Representations with Sparse Action-Conditioned Targets for End-to-End Autonomous Driving</h1>
+      <div class="authors">
+        <span class="names"><a class="author" href="https://www.linkedin.com/in/archiiive99/" target="_blank" rel="noopener">Jaeha Song</a> &nbsp;&middot;&nbsp; <a class="author" href="https://soonminhwang.github.io/" target="_blank" rel="noopener">Soonmin Hwang</a></span>
+        <span class="affil">Hanyang University</span>
+      </div>
+      <p class="lead">PAVER aligns BEV pretraining with candidate ego motions: a single LiDAR sweep provides sparse targets for occupied and unobserved regions along each path. A 10K-parameter head learns to predict these targets without driving-task labels or dense scene reconstruction. Transferring only the BEV encoder improves end-to-end driving under shorter training schedules, while preserving the downstream architecture and camera-only inference.</p>
+      <div class="chips">
+        <button class="btn" type="button" disabled title="The arXiv link will be added when available.">Paper (coming soon)</button><a class="btn" href="https://github.com/archiiive99/PAVER" target="_blank" rel="noopener">Code</a>
+        
+        
+      </div>
+      <div class="kpis">
+        <div class="card kpi">
+          <span class="k-label">Planning safety</span>
+          <div class="k-row"><span class="k-from">0.51%</span><span class="k-arrow">&rarr;</span><span class="k-to">0.19%</span></div>
+          <span class="tag ok">&minus;63%</span>
+          <span class="k-note">VAD-Tiny at epoch 30, averaged over the 1, 2 and 3 second horizons.</span>
+        </div>
+        <div class="card kpi">
+          <span class="k-label">Training cost</span>
+          <div class="k-row"><span class="k-from">21.3h</span><span class="k-arrow">&rarr;</span><span class="k-to">13.6h</span></div>
+          <span class="tag ok">1.57&times; faster</span>
+          <span class="k-note">VAD-Tiny on four RTX&nbsp;5090 GPUs, including the 20 pretraining epochs.</span>
+        </div>
+        <div class="card kpi">
+          <span class="k-label">Closed-loop</span>
+          <div class="k-row"><span class="k-from">48.5</span><span class="k-arrow">&rarr;</span><span class="k-to">58.8</span></div>
+          <span class="tag ok">+10.3 driving&nbsp;score</span>
+          <span class="k-note">UniAD-Tiny on Bench2Drive Town05&nbsp;Long, nine routes driven once each.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="scenes" aria-labelledby="scenes-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="scenes-h" class="label">Teaser</h2>
+        
+      </header>
+      <div class="stack">
+        <div class="card lead-card" id="qvcommon">
+          <div class="chead"><div class="titles"><h3>Driving predictions and BEV attention</h3></div>
+            <div class="actions">
+              <span class="field"><label class="lbl" for="qvSceneSel">Scene</label><span class="select"><select id="qvSceneSel"></select></span></span>
+            </div>
+          </div>
+          <div class="segbar" id="qvArch" role="tablist" aria-label="Architecture"></div>
+          <p class="lead" id="qvSceneNote">Six surround cameras with predicted boxes and futures, over the Grad-CAM of the BEV features behind them. PAVER captures the objects and the surrounding scene more completely, and plans better for it.</p>
+          <div class="qvframe">
+            <button class="qvnav prev" id="qvScenePrev" type="button" aria-label="Previous scene"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <div class="qvstage" id="qvStage" role="button" tabindex="0" aria-label="Play teaser video" aria-pressed="false" aria-keyshortcuts="Space Enter"></div>
+            <button class="qvnav next" id="qvSceneNext" type="button" aria-label="Next scene"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+          <div class="wvtransport" id="qvTransport"><button class="wvplay" id="qvPlay" type="button" aria-label="Play or pause"><svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg></button><div class="wvtrack" id="qvTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="wvrail"><div class="wvfill" id="qvFill"></div></div><div class="wvknob" id="qvKnob"></div></div><span class="wvclock"><b id="qvNow">0:00</b><i>/</i><span id="qvDur">0:00</span></span><div class="chips" id="qvSpeed" role="tablist" aria-label="Playback speed"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="abstract" aria-labelledby="abstract-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="abstract-h" class="label">Abstract</h2>
+      </header>
+      <div class="card">
+        <p>End-to-end autonomous driving relies on a shared bird&rsquo;s-eye-view (BEV) representation for perception, prediction, and planning, yet the BEV encoder is typically optimized only through heterogeneous downstream tasks. This leaves no dedicated stage for organizing the representation around geometry relevant to candidate actions. We introduce <b>PAVER</b>, Planning-Aligned BEV Encoder Pretraining, which rasterizes a LiDAR sweep into sparse free, occupied, and unknown cells. Rule-based candidate ego motions are rolled out and queried laterally across the vehicle width; the fractions of queries falling on measured returns and on unobserved cells form sparse action targets.</p>
+        <p>To limit direct copying from the supervised regions, PAVER replaces action-corridor features with a shared learnable mask token and predicts these targets from masked camera-derived BEV features conditioned on the corresponding action state. The framework requires no driving-task annotations or learned teacher and introduces only 10K trainable auxiliary parameters. After pretraining, the target builder and prediction components are discarded and only the BEV encoder is transferred, leaving the downstream architecture and inference pipeline unchanged.</p>
+        <p>On nuScenes, PAVER lowers VAD-Tiny&rsquo;s average collision rate from 0.51% to 0.19% and its planning L2 from 0.66 to 0.60, while improving motion ADE from 0.91 to 0.80 and map mAP from 0.42 to 0.44. Planning L2 improves on VAD-Base and GenAD as well, although the collision gain does not carry over to VAD-Base.</p>
+      </div>
+    </div>
+  </section>
+
+    <section id="headline" aria-labelledby="headline-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="headline-h" class="label">Results overview</h2>
+      </header>
+      <div class="card lead-card" id="glance">
+      <div class="chead"><div class="titles"><h3>Planning performance and pretraining head size</h3></div><div class="actions"></div></div>
+      <p class="lead">Arrows run from each baseline to the same architecture with PAVER. Hollow markers are reconstruction-based pretraining, as its authors report it.</p>
+      <div class="pane" data-pane="chart"><div class="stack"><div id="chartTransfer"></div><div id="chartCapacity"></div><div class="chips center tight" id="capacityTabs" role="tablist" aria-label="Metric"></div></div></div>
+      <div class="pane" data-pane="table" hidden id="glanceTable"></div>
+    </div>
+      <div class="card" id="table1">
+        <div class="chead"><div class="titles"><span class="reference">Table 1</span><h3>Multi-task performance</h3></div><div class="actions">
+            <div class="seg" role="tablist" aria-label="View">
+              <button role="tab" aria-selected="true" data-pane="chart">Chart</button>
+              <button role="tab" aria-selected="false" data-pane="table">Table</button>
+            </div></div>
+        </div>
+        <p class="lead">Planning, motion prediction, detection, and mapping results on nuScenes for VAD-Tiny, VAD-Base, and GenAD, with and without PAVER pretraining.</p>
+        <div class="pane" data-pane="chart"><div class="chips" id="radarTabs" role="tablist" aria-label="Architecture"></div><div id="chartRadar"></div></div>
+        <div class="pane" data-pane="table" hidden>      <div class="scroller"><table>
+        
+        <thead>
+          <tr class="grp"><th class="stick"></th><th colspan="2" scope="colgroup">Epochs</th><th colspan="2" scope="colgroup">Auxiliary tasks</th><th colspan="2" scope="colgroup">Planning</th><th colspan="3" scope="colgroup">Motion</th><th colspan="2" scope="colgroup">Detection</th><th scope="col">Map</th></tr>
+          <tr><th class="stick" scope="col">Method</th><th scope="col"><abbr title="Pretraining">PT</abbr> (epochs)</th><th scope="col"><abbr title="Fine-tuning">FT</abbr> (epochs)</th><th scope="col">Pretraining</th><th scope="col">Fine-tuning</th><th scope="col">L2 (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">Col. (%) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">ADE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">FDE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">MR <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col"><abbr title="mean Average Precision">mAP</abbr> ↑</th><th scope="col"><abbr title="nuScenes Detection Score">NDS</abbr> <abbr class="dir" title="higher is better">↑</abbr></th><th scope="col"><abbr title="mean Average Precision">mAP</abbr> ↑</th></tr>
+        </thead>
+        <tbody>
+          <tr><th class="stick" scope="row">VAD-Tiny<a href="#fn-repro" id="fnref-1"><sup>†</sup></a></th><td>0</td><td>60</td><td>None</td><td>Det., Map, Mot., Plan.</td><td>0.66</td><td>0.51</td><td>0.91</td><td>1.25</td><td>0.13</td><td>0.23</td><td>0.34</td><td>0.42</td></tr>
+          <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>30</td><td>Actions</td><td>Det., Map, Mot., Plan.</td><td><b class="win">0.60</b></td><td><b class="win">0.19</b></td><td><b class="win">0.80</b></td><td><b class="win">1.09</b></td><td><b class="win">0.12</b></td><td><b class="win">0.28</b></td><td><b class="win">0.40</b></td><td><b class="win">0.44</b></td></tr>
+          <tr class="sep"><th class="stick" scope="row">VAD-Base</th><td>0</td><td>60</td><td>None</td><td>Det., Map, Mot., Plan.</td><td>0.74</td><td><b class="win">0.31</b></td><td>0.76</td><td>1.03</td><td>0.11</td><td>0.29</td><td>0.42</td><td><b class="win">0.50</b></td></tr>
+          <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>30</td><td>Actions</td><td>Det., Map, Mot., Plan.</td><td><b class="win">0.56</b></td><td>0.40</td><td><b class="win">0.69</b></td><td><b class="win">0.90</b></td><td><b class="win">0.09</b></td><td><b class="win">0.33</b></td><td><b class="win">0.45</b></td><td>0.50</td></tr>
+          <tr class="sep"><th class="stick" scope="row">GenAD<a href="#fn-repro"><sup>†</sup></a></th><td>0</td><td>60</td><td>None</td><td>Det., Map, Mot., Plan.</td><td>0.59</td><td>0.37</td><td>0.87</td><td>1.18</td><td>0.14</td><td>0.19</td><td>0.26</td><td><b class="win">0.46</b></td></tr>
+          <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>30</td><td>Actions</td><td>Det., Map, Mot., Plan.</td><td><b class="win">0.54</b></td><td><b class="win">0.21</b></td><td><b class="win">0.80</b></td><td><b class="win">1.05</b></td><td><b class="win">0.11</b></td><td><b class="win">0.21</b></td><td><b class="win">0.28</b></td><td>0.44</td></tr>
+        </tbody>
+      </table></div>
+        <p class="tcap">Multi-task nuScenes validation results for three architectures, each without and with PAVER pretraining.</p>
+      <p class="foot" id="fn-repro">A bold value is the better of the pair it is compared against. <sup>†</sup> Reproduced results . Actions denotes PAVER’s sparse action targets. PT and FT denote pretraining and fine-tuning epochs. L2 is the trajectory displacement error and Col. the box collision rate in percent, both averaged over 1, 2, and 3 seconds.</p></div>
+      </div>
+    </div>
+  </section>
+
+<section id="visualizer" aria-labelledby="visualizer-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="visualizer-h" class="label">Interactive 3D visualization</h2>
+        <p class="lead">Both models decode the same clip: 3D boxes with object futures, the vector map, and the planned trajectory at one instant.</p>
+      </header>
+      <div class="card" id="viewer3d">
+        <div class="chead">
+          <div class="titles"><h3>Model comparison</h3></div>
+          <div class="actions">
+            <span class="field"><label class="lbl" for="wvArchSel">Architecture</label><span class="select"><select id="wvArchSel"></select></span></span>
+            <span class="field"><label class="lbl" for="wvFrame">Scene</label><span class="select"><select id="wvFrame"></select></span></span>
+          </div>
+        </div>
+        
+        <!-- what the six camera images show, directly above them -->
+        <div class="wvbar" aria-label="Camera images">
+          <div class="wvbarL">
+            <div class="chips" id="wvMode" role="tablist" aria-label="Camera overlay"></div>
+          </div>
+          <div class="wvbarR">
+            <div class="chips" id="wvImgModel" role="tablist" aria-label="Model shown on the images"></div>
+          </div>
+          <div class="wvfade" id="wvAttn" hidden>
+            <label for="wvFade">Grad-CAM opacity</label>
+            <input type="range" id="wvFade" min="0" max="100" step="5" value="100">
+            <b id="wvFadeVal">100%</b>
+          </div>
+        </div>
+        <div class="wvcams" id="wvCams"></div>
+        <div class="wvstage" id="wvStage" data-live="1"></div>
+        <!-- the viewpoint steers the panes above it and sits with the transport -->
+        <div class="wvbar wvbar3d" aria-label="3D view">
+          <div class="chips" id="wvCam" role="tablist" aria-label="Viewpoint"></div>
+        </div>
+        <div class="wvtransport">
+          <button type="button" class="wvplay" id="wvPlay" aria-label="Play">
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path class="ic-play" d="M4.5 2.6 12.8 8 4.5 13.4z"/>
+              <path class="ic-pause" d="M4.4 2.9h2.7v10.2H4.4zM8.9 2.9h2.7v10.2H8.9z"/>
+            </svg>
+          </button>
+          <div class="wvtrack" id="wvTrack" role="slider" tabindex="0"
+               aria-label="Timeline" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0">
+            <div class="wvrail"><div class="wvfill" id="wvFill"></div></div>
+            <div class="wvknob" id="wvKnob"></div>
+          </div>
+          <span class="wvclock"><b id="wvNow">0:00</b><i>/</i><span id="wvDur">0:00</span></span>
+          <div class="wvspeed" id="wvSpeed" role="group" aria-label="Playback speed"></div>
+        </div>
+        <div class="wvfoot">
+          <div class="wvgroup">
+            <span class="wvgl">Layers</span>
+            <div class="wvtoggles" id="wvLayers"></div>
+          </div>
+          <div class="wvgroup">
+            <span class="wvgl"><label for="wvScore">Score threshold</label></span>
+            <div class="wvscore">
+              <input type="range" id="wvScore" min="0.25" max="0.9" step="0.05" value="0.3">
+              <b id="wvScoreVal">0.30</b>
+            </div>
+          </div>
+        </div>
+        <div class="wvlegend" id="wvLegend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="idea" aria-labelledby="idea-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="idea-h" class="label">Pretraining objectives</h2>
+        <p class="lead">Supervision sources and auxiliary-head requirements of driving pretraining methods.</p>
+      </header>
+      <div class="card" id="fig2">
+        <div class="chead"><div class="titles"><span class="reference">Figure 2</span><h3>Comparison of pretraining objectives</h3></div><div class="actions"></div></div>
+        <figure class="fig"><div class="frame" id="fig2frame"></div><figcaption class="caption">(a) supervises with perception labels, (b) reconstructs scene content and
+          transfers the image backbone, and (c) PAVER supervises the BEV encoder with sparse action targets
+          read off a single LiDAR sweep.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+  <section id="overview" aria-labelledby="overview-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="overview-h" class="label">Training efficiency</h2>
+        <p class="lead">Estimated total training time, including pretraining, compared with scratch training.</p>
+      </header>
+      <div class="stack">
+      <div class="card" id="fig1">
+      <div class="chead"><div class="titles"><span class="reference">Figure 1</span><h3>Total training time</h3></div><div class="actions"></div></div>
+      <p class="lead">Measured end to end on four NVIDIA RTX&nbsp;5090 GPUs. The PAVER rows carry their own 20 pretraining epochs and still finish sooner than the scratch baselines.</p>
+      <div class="pane" data-pane="chart"><div id="chartCost"></div></div>
+      <div class="pane" data-pane="table" hidden id="costTable"></div>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="method" aria-labelledby="method-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="method-h" class="label">Method</h2>
+        <p class="lead">Perception supervision needs dense annotation; reconstruction needs a dense 3D objective. PAVER needs neither.</p>
+      </header>
+      <div class="stack">
+  <div class="stack" id="methodFigs"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="results" aria-labelledby="results-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="results-h" class="label">nuScenes results</h2>
+        <p class="lead">Planning, mapping, and pretraining comparisons on the nuScenes validation split.</p>
+      </header>
+      <div class="stack">
+      <div class="card" id="table4">
+      <div class="chead"><div class="titles"><span class="reference">Table 5</span><h3>Planning by horizon</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">Planning L2 error and collision rate at 1, 2, and 3 seconds for VAD-Tiny, VAD-Base, and GenAD, with and without PAVER pretraining.</p>
+      <div class="pane" data-pane="chart"><div class="chips" id="horizonTabs" role="tablist" aria-label="Metric"></div><div id="chartHorizon"></div></div><div class="pane" data-pane="table" hidden>        <div class="scroller"><table>
+          
+          <thead><tr class="grp"><th class="stick"></th><th colspan="3" scope="colgroup">L2 (m) ↓</th><th colspan="3" scope="colgroup">Col. (%) ↓</th></tr>
+          <tr><th class="stick" scope="col">Method</th><th scope="col">1s</th><th scope="col">2s</th><th scope="col">3s</th><th scope="col">1s</th><th scope="col">2s</th><th scope="col">3s</th></tr></thead>
+          <tbody>
+            <tr><th class="stick" scope="row">VAD-Tiny<sup>†</sup></th><td>0.35</td><td>0.63</td><td>1.01</td><td>0.38</td><td>0.45</td><td>0.71</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td><b class="win">0.32</b></td><td><b class="win">0.58</b></td><td><b class="win">0.92</b></td><td><b class="win">0.09</b></td><td><b class="win">0.15</b></td><td><b class="win">0.32</b></td></tr>
+            <tr class="sep"><th class="stick" scope="row">VAD-Base</th><td>0.41</td><td>0.71</td><td>1.10</td><td><b class="win">0.20</b></td><td><b class="win">0.29</b></td><td><b class="win">0.43</b></td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td><b class="win">0.30</b></td><td><b class="win">0.54</b></td><td><b class="win">0.85</b></td><td>0.24</td><td>0.41</td><td>0.55</td></tr>
+            <tr class="sep"><th class="stick" scope="row">GenAD<sup>†</sup></th><td>0.33</td><td>0.56</td><td>0.88</td><td>0.21</td><td>0.34</td><td>0.56</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td><b class="win">0.28</b></td><td><b class="win">0.51</b></td><td><b class="win">0.82</b></td><td><b class="win">0.09</b></td><td><b class="win">0.18</b></td><td><b class="win">0.35</b></td></tr>
+          </tbody>
+        </table></div>
+        <p class="tcap">Planning error and collision rate at each prediction horizon.</p>
+        </div>
+    </div>
+      <div class="card" id="table5">
+      <div class="chead"><div class="titles"><span class="reference">Table 6</span><h3>Comparison with reconstruction-based pretraining</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">Planning performance and temporary auxiliary-parameter counts for PAVER and reconstruction-based pretraining with UniPAD and MIM4D.</p>
+      <div class="pane" data-pane="chart"><div class="chips" id="methodsTabs" role="tablist" aria-label="Metric"></div><div id="chartMethods"></div></div><div class="pane" data-pane="table" hidden>      <div class="scroller"><table>
+        
+        <thead><tr class="grp"><th class="stick"></th><th></th><th></th><th colspan="3" scope="colgroup">L2 (m) ↓</th><th colspan="3" scope="colgroup">Col. (%) ↓</th></tr>
+        <tr><th class="stick" scope="col">Method</th><th scope="col">Target</th><th scope="col">Auxiliary parameters ↓</th><th scope="col">1s</th><th scope="col">2s</th><th scope="col">3s</th><th scope="col">1s</th><th scope="col">2s</th><th scope="col">3s</th></tr></thead>
+        <tbody>
+          <tr><th class="stick" scope="row">VAD-Tiny<sup>†</sup></th><td>—</td><td>0.00M</td><td>0.46</td><td>0.76</td><td>1.12</td><td>0.21</td><td>0.35</td><td>0.58</td></tr>
+          <tr><th class="stick" scope="row">+ UniPAD<sup>‡</sup></th><td>RGB, Depth</td><td>6.41M</td><td>0.45</td><td>0.75</td><td>1.11</td><td>0.19</td><td>0.31</td><td>0.46</td></tr>
+          <tr><th class="stick" scope="row">+ MIM4D<sup>‡</sup></th><td>RGB, Depth</td><td>13.43M</td><td>0.39</td><td>0.69</td><td>1.06</td><td>0.21</td><td>0.28</td><td>0.38</td></tr>
+          <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>Sparse Actions</td><td>0.01M</td><td><b class="win">0.32</b></td><td><b class="win">0.58</b></td><td><b class="win">0.92</b></td><td><b class="win">0.09</b></td><td><b class="win">0.15</b></td><td><b class="win">0.32</b></td></tr>
+          <tr class="sep"><th class="stick" scope="row">VAD-Base</th><td>—</td><td>0.00M</td><td>0.41</td><td>0.71</td><td>1.10</td><td>0.20</td><td>0.29</td><td>0.43</td></tr>
+          <tr><th class="stick" scope="row">+ MIM4D<sup>‡</sup></th><td>RGB, Depth</td><td>13.43M</td><td>0.36</td><td>0.64</td><td>1.00</td><td><b class="win">0.08</b></td><td><b class="win">0.14</b></td><td><b class="win">0.36</b></td></tr>
+          <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>Sparse Actions</td><td>0.01M</td><td><b class="win">0.30</b></td><td><b class="win">0.54</b></td><td><b class="win">0.85</b></td><td>0.24</td><td>0.41</td><td>0.55</td></tr>
+        </tbody>
+      </table></div>
+        <p class="tcap">Comparison against reconstruction-based driving pretraining at matched downstream budgets.</p>
+      <p class="foot">Auxiliary parameters are temporary and discarded after pretraining. RGB denotes camera-color reconstruction and Depth denotes LiDAR-projected sparse metric-depth reconstruction. <sup>†</sup> Reproduced results. <sup>‡</sup> Reported results.</p></div>
+    </div>
+      <div class="card" id="table3">
+      <div class="chead"><div class="titles"><span class="reference">Table 3</span><h3>Map prediction results</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">Average precision for dividers, pedestrian crossings, and road boundaries on nuScenes, with and without PAVER pretraining.</p>
+      <div class="pane" data-pane="chart"><div class="chips" id="mapTabs" role="tablist" aria-label="Metric"></div><div id="chartMap"></div></div><div class="pane" data-pane="table" hidden>        <div class="scroller"><table>
+          
+          <thead><tr class="grp"><th class="stick"></th><th colspan="3" scope="colgroup">AP ↑</th><th></th></tr>
+          <tr><th class="stick" scope="col">Method</th><th scope="col">Divider</th><th scope="col">Ped. Crossing</th><th scope="col">Boundary</th><th scope="col"><abbr title="mean Average Precision">mAP</abbr> ↑</th></tr></thead>
+          <tbody>
+            <tr><th class="stick" scope="row">VAD-Tiny<sup>†</sup></th><td>0.48</td><td>0.32</td><td>0.46</td><td>0.42</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td><b class="win">0.48</b></td><td><b class="win">0.34</b></td><td><b class="win">0.49</b></td><td><b class="win">0.44</b></td></tr>
+            <tr class="sep"><th class="stick" scope="row">VAD-Base</th><td>0.53</td><td><b class="win">0.44</b></td><td><b class="win">0.53</b></td><td><b class="win">0.50</b></td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td><b class="win">0.53</b></td><td>0.44</td><td>0.52</td><td>0.50</td></tr>
+            <tr class="sep"><th class="stick" scope="row">GenAD<sup>†</sup></th><td><b class="win">0.50</b></td><td><b class="win">0.38</b></td><td><b class="win">0.49</b></td><td><b class="win">0.46</b></td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>0.47</td><td>0.35</td><td>0.48</td><td>0.44</td></tr>
+          </tbody>
+        </table></div>
+        <p class="tcap">Vector map average precision per class on nuScenes.</p>
+        <p class="foot">AP and mAP denote average precision per map class and its mean. <sup>†</sup> Reproduced results.</p></div>
+    </div>
+      <div class="card" id="table2">
+      <div class="chead"><div class="titles"><span class="reference">Table 2</span><h3>Pseudo-LiDAR targets</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">VAD-Tiny downstream performance with no BEV pretraining, pseudo-LiDAR targets from monocular depth, or targets from measured LiDAR.</p>
+      <div class="pane" data-pane="chart"><div class="chips" id="pseudoTabs" role="tablist" aria-label="Metric"></div><div id="chartPseudo"></div></div><div class="pane" data-pane="table" hidden>        <div class="scroller"><table>
+          
+          <thead><tr class="grp"><th class="stick"></th><th colspan="2" scope="colgroup">Planning</th><th colspan="3" scope="colgroup">Motion</th><th scope="col">Det.</th><th scope="col">Map</th></tr>
+          <tr><th class="stick" scope="col">Target source</th><th scope="col">L2 (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">Col. (%) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">ADE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">FDE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">MR <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col"><abbr title="nuScenes Detection Score">NDS</abbr> <abbr class="dir" title="higher is better">↑</abbr></th><th scope="col"><abbr title="mean Average Precision">mAP</abbr> ↑</th></tr></thead>
+          <tbody>
+            <tr><th class="stick" scope="row">None<sup>†</sup></th><td>0.662</td><td>0.513</td><td>0.905</td><td>1.250</td><td>0.135</td><td>0.338</td><td>0.419</td></tr>
+            <tr><th class="stick" scope="row">Pseudo-LiDAR</th><td><b class="win">0.563</b></td><td>0.560</td><td>0.831</td><td>1.101</td><td><b class="win">0.121</b></td><td>0.386</td><td><b class="win">0.439</b></td></tr>
+            <tr class="ours"><th class="stick" scope="row">LiDAR</th><td>0.603</td><td><b class="win">0.187</b></td><td><b class="win">0.803</b></td><td><b class="win">1.086</b></td><td><b class="win">0.121</b></td><td><b class="win">0.397</b></td><td><b class="win">0.439</b></td></tr>
+          </tbody>
+        </table></div>
+        <p class="tcap">Replacing the LiDAR target source with monocular pseudo-LiDAR.</p>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="closedloop" aria-labelledby="closedloop-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="closedloop-h" class="label">Closed-loop evaluation</h2>
+        <p class="lead">Bench2Drive Town05 Long: nine routes, one repetition, identical protocol.</p>
+      </header>
+      <div class="stack">
+      <div class="card" id="closedtable">
+      <div class="chead"><div class="titles"><span class="reference">Table 7</span><h3>Closed-loop metrics</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">Driving Score, Route Completion, and Infraction Score on Bench2Drive Town05 Long for UniAD-Tiny and GenAD, with and without PAVER pretraining.</p>
+      <div class="pane" data-pane="chart"><div id="chartClosed"></div></div><div class="pane" data-pane="table" hidden>        <div class="scroller"><table>
+          
+          <thead><tr><th class="stick" scope="col">Method</th><th scope="col"><abbr title="Driving Score">DS</abbr> <abbr class="dir" title="higher is better">↑</abbr></th><th scope="col"><abbr title="Route Completion">RC</abbr> <abbr class="dir" title="higher is better">↑</abbr></th><th scope="col"><abbr title="Infraction Score">IS</abbr> <abbr class="dir" title="higher is better">↑</abbr></th></tr></thead>
+          <tbody>
+            <tr><th class="stick" scope="row">UniAD-Tiny</th><td>48.45</td><td>60.96</td><td>0.85</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td><b class="win">58.79</b></td><td><b class="win">79.06</b></td><td>0.79</td></tr>
+            <tr class="sep"><th class="stick" scope="row">GenAD<a href="#fn-genad"><sup>‡</sup></a></th><td>34.53</td><td><abbr class="na" title="not reported in the GenAD paper">none</abbr></td><td><abbr class="na" title="not reported in the GenAD paper">none</abbr></td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td><b class="win">49.07</b></td><td>58.95</td><td>0.90</td></tr>
+          </tbody>
+        </table></div>
+        <p class="tcap">Closed-loop driving on Town05 Long, 9 routes with one repetition.</p>
+        <p class="foot" id="fn-genad">DS, RC, and IS denote Driving Score, Route Completion, and Infraction Score. none marks a value the source does not report. <sup>‡</sup> Reported by GenAD.</p></div>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ablations" aria-labelledby="ablations-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="ablations-h" class="label">Ablation studies</h2>
+        <p class="lead">Effects of pretraining targets, feature masking, action conditioning, and training schedules.</p>
+      </header>
+      <div class="stack">
+      <div class="card" id="table7">
+      <div class="chead"><div class="titles"><span class="reference">Table 8</span><h3>Pretraining targets and head size</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">VAD-Tiny downstream performance across pretraining targets and auxiliary-head sizes, using 20 pretraining epochs for every pretrained variant.</p>
+      <div class="pane" data-pane="chart"><div class="chips" id="strategyTabs" role="tablist" aria-label="Metric"></div><div id="chartStrategy"></div></div><div class="pane" data-pane="table" hidden>      <div class="scroller"><table>
+        
+        <thead><tr class="grp"><th class="stick" colspan="4" scope="colgroup">Pretraining supervision</th><th></th><th colspan="2" scope="colgroup">Plan.</th><th scope="col">Mot.</th><th scope="col">Det.</th><th scope="col">Map</th></tr>
+        <tr><th class="stick" scope="col">Det.</th><th scope="col">Map</th><th scope="col">Occ.</th><th scope="col">Act.</th><th scope="col">Auxiliary parameters ↓</th><th scope="col">L2 (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">Col. (%) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">ADE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col"><abbr title="nuScenes Detection Score">NDS</abbr> <abbr class="dir" title="higher is better">↑</abbr></th><th scope="col"><abbr title="mean Average Precision">mAP</abbr> ↑</th></tr></thead>
+        <tbody id="t7body"></tbody>
+      </table></div>
+        <p class="tcap">Pretraining supervision against auxiliary-head budget.</p>
+      <p class="foot">All pretraining runs use 20 epochs. Occ. and Act. denote occupancy and PAVER’s action conditioning. No task-supervised row matches the collision rate and NDS of sparse action targets, at 1/300 of the auxiliary parameters.</p></div>
+    </div>
+      <div class="card" id="table8">
+      <div class="chead"><div class="titles"><span class="reference">Table 9</span><h3>Feature masking and action conditioning</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">VAD-Tiny downstream performance with action-corridor feature masking and action-state conditioning enabled separately or together.</p>
+      <div class="pane" data-pane="chart"><div class="chips" id="componentsTabs" role="tablist" aria-label="Metric"></div><div id="chartComponents"></div></div><div class="pane" data-pane="table" hidden>        <div class="scroller"><table>
+          
+          <thead><tr class="grp"><th class="stick" colspan="2"></th><th colspan="2" scope="colgroup">Planning</th><th colspan="3" scope="colgroup">Motion</th><th scope="col">Det.</th><th scope="col">Map</th></tr>
+          <tr><th class="stick" scope="col">Mask</th><th scope="col">Action</th><th scope="col">L2 (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">Col. (%) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">ADE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">FDE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">MR <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col"><abbr title="nuScenes Detection Score">NDS</abbr> <abbr class="dir" title="higher is better">↑</abbr></th><th scope="col"><abbr title="mean Average Precision">mAP</abbr> ↑</th></tr></thead>
+          <tbody id="t8body"></tbody>
+        </table></div>
+        <p class="tcap">Feature masking and action-state conditioning, separately and together.</p>
+        <p class="foot">Mask denotes the corridor mask; Action state denotes the 4-D state concatenated at readout.</p></div>
+    </div>
+      <div class="card" id="table9">
+      <div class="chead"><div class="titles"><span class="reference">Table 10</span><h3>Pretraining and fine-tuning schedules</h3></div><div class="actions"><div class="seg" role="tablist" aria-label="View"><button role="tab" aria-selected="true" data-pane="chart">Chart</button><button role="tab" aria-selected="false" data-pane="table">Table</button></div></div>
+      </div>
+      <p class="lead">Downstream performance and estimated total training time for VAD-Tiny and VAD-Base across pretraining and fine-tuning schedules.</p>
+      <div class="pane" data-pane="chart"><div class="chips" id="scheduleTabs" role="tablist" aria-label="Architecture"></div><div id="chartSchedule"></div></div><div class="pane" data-pane="table" hidden>        <div class="scroller"><table>
+          
+          <thead><tr class="grp"><th class="stick"></th><th colspan="3" scope="colgroup">Training cost</th><th colspan="2" scope="colgroup">Planning</th><th scope="col">Mot.</th><th scope="col">Det.</th><th scope="col">Map</th></tr>
+          <tr><th class="stick" scope="col">Method</th><th scope="col"><abbr title="Pretraining">PT</abbr> (epochs)</th><th scope="col"><abbr title="Fine-tuning">FT</abbr> (epochs)</th><th scope="col">Time</th><th scope="col">L2 (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">Col. (%) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col">ADE (m) <abbr class="dir" title="lower is better">↓</abbr></th><th scope="col"><abbr title="nuScenes Detection Score">NDS</abbr> <abbr class="dir" title="higher is better">↑</abbr></th><th scope="col"><abbr title="mean Average Precision">mAP</abbr> ↑</th></tr></thead>
+          <tbody>
+            <tr><th class="stick" scope="row">VAD-Tiny<sup>†</sup></th><td>48<sup>‡</sup></td><td>12</td><td>20.5h</td><td>0.701</td><td>0.730</td><td>0.840</td><td>0.363</td><td>0.413</td></tr>
+            <tr><th class="stick" scope="row">VAD-Tiny<sup>†</sup></th><td>0</td><td>60</td><td>21.3h</td><td>0.662</td><td>0.513</td><td>0.905</td><td>0.338</td><td>0.419</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>10</td><td>6.5h</td><td>0.637</td><td>0.300</td><td>0.851</td><td>0.357</td><td>0.361</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>20</td><td>10.1h</td><td>0.647</td><td>0.220</td><td><b class="win">0.781</b></td><td>0.387</td><td>0.425</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>30</td><td>13.6h</td><td><b class="win">0.603</b></td><td><b class="win">0.187</b></td><td>0.803</td><td><b class="win">0.397</b></td><td><b class="win">0.439</b></td></tr>
+            <tr class="sep"><th class="stick" scope="row">VAD-Base</th><td>0</td><td>60</td><td>103h</td><td>0.742</td><td>0.307</td><td>0.760</td><td>0.422</td><td><b class="win">0.502</b></td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>10</td><td>31.8h</td><td>0.646</td><td>0.530</td><td>0.772</td><td>0.371</td><td>0.403</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>20</td><td>49.0h</td><td>0.757</td><td><b class="win">0.280</b></td><td>0.698</td><td>0.442</td><td>0.460</td></tr>
+            <tr class="ours"><th class="stick" scope="row">+ Ours</th><td>20</td><td>30</td><td>66.1h</td><td><b class="win">0.562</b></td><td>0.401</td><td><b class="win">0.685</b></td><td><b class="win">0.446</b></td><td>0.498</td></tr>
+          </tbody>
+        </table></div>
+        <p class="tcap">Pretraining and fine-tuning epoch budgets and estimated total training time.</p>
+        <p class="foot" id="fn-stage1">Total training time, including pretraining, is estimated from mean iteration times on 4 NVIDIA RTX&nbsp;5090 GPUs. <sup>†</sup> Reproduced. <sup>‡</sup> Stage 1 pretrains detection, mapping, and motion prediction without planning.</p></div>
+    </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="analysis" aria-labelledby="analysis-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="analysis-h" class="label">Representation analysis</h2>
+        <p class="lead">Analyses of BEV representations, pretraining targets, and downstream learning dynamics.</p>
+      </header>
+      <div class="stack">
+      <div class="card" id="trajviews">
+      <div class="chead"><div class="titles"><h3>Downstream learning curves</h3></div><div class="actions"><span class="field"><label class="lbl" for="anSelect">View</label><span class="select"><select id="anSelect"></select></span></span></div>
+      </div>
+      <div id="anBody"></div><div class="chips" id="anTools" role="tablist"></div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="supptables" aria-labelledby="supptables-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="supptables-h" class="label">Supplementary results</h2>
+      </header>
+      <div class="stack">
+        <div class="card" id="supp">
+          <div class="chead">
+            <div class="titles"><h3 id="suppTitle">Full metrics</h3></div>
+            <div class="actions"><div class="chips" id="suppTabs" role="tablist" aria-label="Table group"></div></div>
+          </div>
+          <p class="caption" id="suppDescription">Complete planning, motion prediction, detection, and mapping results, followed by class-wise detection and map metrics.</p>
+          <div class="stack" id="suppBody"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="downloads" aria-labelledby="downloads-h">
+    <div class="wrap">
+      <header class="shead">
+        <h2 id="downloads-h" class="label">Citation</h2>
+      </header>
+      <div class="stack">
+        <div class="card" id="cite">
+          <div class="chead"><div class="titles"><h3>BibTeX</h3></div><div class="actions"></div></div>
+          <pre class="bib" id="bib">@misc{paver,
+  title  = {Planning-Aligned Pretraining of BEV Representations
+            with Sparse Action-Conditioned Targets for
+            End-to-End Autonomous Driving},
+  author = {Jaeha Song and Soonmin Hwang},
+  year   = {2026},
+  note   = {Preprint},
+  url    = {https://archiiive99.github.io/PAVER/}
+}</pre>
+          <div class="chips"><button class="btn" id="copyBib">Copy BibTeX</button></div>
+          <p class="caption">The key and year are provisional until the paper appears at a venue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="meta"><b>PAVER</b> &middot; Planning-Aligned BEV Encoder Pretraining &middot; <a class="author" href="https://www.linkedin.com/in/archiiive99/" target="_blank" rel="noopener">Jaeha Song</a>, <a class="author" href="https://soonminhwang.github.io/" target="_blank" rel="noopener">Soonmin Hwang</a> &middot; Hanyang University.</p>
+  </div>
+</footer>
+
+<button class="btn icon" id="top" aria-label="Back to top"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+
+</body>
+</html>
