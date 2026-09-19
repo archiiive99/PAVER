@@ -1941,7 +1941,7 @@ new MutationObserver(records => {
   if (!stage || !sel || !archBar) return;
 
   let arch = getParam('arch-clip', 'vad_tiny');  if (!NAME[arch]) arch = 'vad_tiny';
-  let scene = getParam('scene', commonIds[0]);
+  let scene = getParam('scene', '0103');
   let rate = parseFloat(getParam('clip-speed', '0.5')) || 0.5;
   let video = null;
 
