@@ -2010,10 +2010,11 @@ new MutationObserver(records => {
   });
   markTabs(speed, String(rate));
 
-  function draw(push, keepTime) {
+  function draw(push, keepTime, forcePlay = false) {
     const initialPlayback = video === null;
     const at = keepTime && video && video.duration ? video.currentTime : 0;
     const wasPlaying = video && !video.paused;
+    const shouldPlay = forcePlay || initialPlayback || Boolean(wasPlaying);
     const list = scenes();
     if (!list.includes(scene)) scene = list[0];
     const shared = list.filter(s => commonIds.includes(s));
@@ -2039,7 +2040,7 @@ new MutationObserver(records => {
     video.defaultMuted = true;
     video.playsInline = true;
     video.loop = true;
-    video.autoplay = initialPlayback || Boolean(wasPlaying);
+    video.autoplay = shouldPlay;
     video.src = src;
     video.playbackRate = rate;
     syncPlayback();
@@ -2051,7 +2052,7 @@ new MutationObserver(records => {
       /* the same instant of the same scene under another architecture is the
          comparison this card exists for, so the position survives the switch */
       if (at) video.currentTime = Math.min(at, video.duration - 0.05);
-      if (initialPlayback || wasPlaying) startPlayback();
+      if (shouldPlay) startPlayback();
       paint();
     }, { once: true });
     video.addEventListener('error', () => {
@@ -2077,11 +2078,11 @@ new MutationObserver(records => {
     if (!e.repeat) togglePlayback();
   });
   chipTabs(archBar, ARCH, (k, push) => { arch = k; draw(push, true); });
-  sel.addEventListener('change', () => { scene = sel.value; draw(true); });
+  sel.addEventListener('change', () => { scene = sel.value; draw(true, false, true); });
   const step = delta => {
     const list = scenes();
     scene = list[(list.indexOf(scene) + delta + list.length) % list.length];
-    draw(true);
+    draw(true, false, true);
     announce(`Scene ${scene}`);
   };
   $('#qvScenePrev').addEventListener('click', () => step(-1));
