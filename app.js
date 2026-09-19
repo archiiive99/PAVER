@@ -14,8 +14,9 @@ const root = document.documentElement;
     const saved = localStorage.getItem('paver-state');
     if (saved) {
       const restored = new URLSearchParams(saved);
-      /* Clean visits start the teaser on VAD-Tiny; explicit shared links still win. */
+      /* Clean visits start on VAD-Tiny scene 0553; explicit shared links still win. */
       restored.delete('arch-clip');
+      restored.delete('scene');
       const query = restored.toString();
       history.replaceState(null, '', location.pathname + (query ? '?' + query : '') + location.hash);
     }
