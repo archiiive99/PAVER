@@ -1926,7 +1926,7 @@ new MutationObserver(records => {
     vad_base: ['0556','0559','0924','0562','0916','0093','0780','0106','0910','0345'],
     genad:    ['1073','0922','0905','0917','0904','1071','0105','0967','0330','0345']
   };
-  const EXTRA = { vad_tiny: ['0553', '0271', '0272'], vad_base: [], genad: [] };
+  const EXTRA = { vad_tiny: ['0553', '0271', '0272'], vad_base: ['0553', '0271', '0272'], genad: ['0553', '0271', '0272'] };
   const NAME = Object.fromEntries(ARCH);
   const commonIds = COMMON;
   const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
