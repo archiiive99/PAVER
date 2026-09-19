@@ -7,9 +7,7 @@ Hanyang University
 
 [**Project Page**](https://archiiive99.github.io/PAVER/) &nbsp;&nbsp; **Paper** &nbsp;&nbsp; [**Model Zoo**](#model-zoo)
 
-<a href="https://archiiive99.github.io/PAVER/">
-  <img src="assets/vad_tiny_gradcam_demo.webp" width="100%" alt="VAD-Tiny and PAVER predictions with BEV Grad-CAM on nuScenes">
-</a>
+<img src="assets/vad_tiny_gradcam_demo.webp" width="100%" alt="VAD-Tiny and PAVER predictions with BEV Grad-CAM on nuScenes">
 
 </div>
 
