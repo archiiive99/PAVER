@@ -1926,10 +1926,13 @@ new MutationObserver(records => {
     vad_base: ['0556','0559','0924','0562','0916','0093','0780','0106','0910','0345'],
     genad:    ['1073','0922','0905','0917','0904','1071','0105','0967','0330','0345']
   };
+  const EXTRA = { vad_tiny: ['0553', '0271', '0272'], vad_base: [], genad: [] };
   const NAME = Object.fromEntries(ARCH);
   const commonIds = COMMON;
   const clock = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-  const srcFor = (arch, id) => commonIds.includes(id) && !TOP[arch].includes(id)
+  const srcFor = (arch, id) => EXTRA[arch].includes(id)
+    ? `assets/qualvid/selected/${arch}/scene-${id}.mp4`
+    : commonIds.includes(id) && !TOP[arch].includes(id)
     ? `assets/qualvid/common/scene-${id}/${arch}.mp4`
     : (TOP[arch].includes(id) ? `assets/qualvid/top10/${arch}/scene-${id}.mp4`
                               : `assets/qualvid/common/scene-${id}/${arch}.mp4`);
@@ -1941,11 +1944,11 @@ new MutationObserver(records => {
   if (!stage || !sel || !archBar) return;
 
   let arch = getParam('arch-clip', 'vad_tiny');  if (!NAME[arch]) arch = 'vad_tiny';
-  let scene = getParam('scene', '0103');
+  let scene = getParam('scene', '0553');
   let rate = parseFloat(getParam('clip-speed', '0.5')) || 0.5;
   let video = null;
 
-  const scenes = () => commonIds.concat(TOP[arch].filter(s => !commonIds.includes(s)));
+  const scenes = () => EXTRA[arch].concat(commonIds, TOP[arch].filter(s => !commonIds.includes(s)));
 
   const paint = () => {
     if (!video || !video.duration) return;
@@ -2018,9 +2021,10 @@ new MutationObserver(records => {
     const list = scenes();
     if (!list.includes(scene)) scene = list[0];
     const shared = list.filter(s => commonIds.includes(s));
-    const own = list.filter(s => !commonIds.includes(s));
+    const own = list.filter(s => !commonIds.includes(s) && !EXTRA[arch].includes(s));
     const opts = g => g.map(s => `<option value="${s}">Scene ${s}</option>`).join('');
     const markup =
+      (EXTRA[arch].length ? `<optgroup label="Additional scenes">${opts(EXTRA[arch])}</optgroup>` : '') +
       `<optgroup label="Shared by all three">${opts(shared)}</optgroup>` +
       (own.length ? `<optgroup label="${NAME[arch]} gains most">${opts(own)}</optgroup>` : '');
     /* 4, 5: rebuilding an unchanged list closes the select if it is open and
