@@ -70,6 +70,11 @@ function setParam(k, v) {
 /* ── navigation ───────────────────────────────────────────────────────── */
 (function nav() {
   const btn = $('#menu'), el = $('#nav');
+  const closeMenu = () => {
+    el.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', 'Open navigation');
+  };
   btn.addEventListener('click', () => {
     const open = el.classList.toggle('open');
     btn.setAttribute('aria-expanded', String(open));
@@ -77,8 +82,15 @@ function setParam(k, v) {
   });
   el.addEventListener('click', e => {
     if (e.target.tagName !== 'A') return;
-    el.classList.remove('open');
-    btn.setAttribute('aria-expanded', 'false');
+    closeMenu();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && el.classList.contains('open')) {
+      closeMenu(); btn.focus();
+    }
+  });
+  document.addEventListener('pointerdown', e => {
+    if (!el.contains(e.target) && !btn.contains(e.target)) closeMenu();
   });
   const links = $$('#nav a');
   const owner = new Map();
@@ -1204,8 +1216,24 @@ addEventListener('DOMContentLoaded', () => {
   function bindPointer(v) {
     const cv = v.canvas;
     let drag = null;
+    const touches = new Map();
+    let pinch = null;
+    const touchSpan = () => {
+      const [a, b] = [...touches.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
     cv.addEventListener('contextmenu', e => e.preventDefault());
     cv.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'touch') {
+        touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (touches.size === 2) {
+          pinch = { span: Math.max(1, touchSpan()), dist: cam.dist };
+          drag = null;
+          cv.setPointerCapture(e.pointerId);
+          e.preventDefault();
+          return;
+        }
+      }
       /* right button, middle button or shift pans; the left button orbits */
       const pan = e.button === 2 || e.button === 1 || e.shiftKey;
       drag = { x: e.clientX, y: e.clientY, az: cam.az, el: cam.el, pan,
@@ -1215,6 +1243,14 @@ addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
     });
     cv.addEventListener('pointermove', e => {
+      if (touches.has(e.pointerId)) {
+        touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pinch && touches.size === 2) {
+          cam.dist = Math.max(18, Math.min(150, pinch.dist * pinch.span / Math.max(1, touchSpan())));
+          draw();
+          return;
+        }
+      }
       if (drag && drag.pan) {
         /* drag the target across the screen plane, one metre per screen metre */
         const k = 2 * Math.tan(30 * Math.PI / 180) * cam.dist / cv.clientHeight;
@@ -1254,7 +1290,12 @@ addEventListener('DOMContentLoaded', () => {
         v.tag.classList.add('on');
       } else v.tag.classList.remove('on');
     });
-    const stop = () => { drag = null; cv.classList.remove('grabbing', 'panning'); };
+    const stop = e => {
+      if (e) touches.delete(e.pointerId); else touches.clear();
+      pinch = null;
+      drag = null;
+      cv.classList.remove('grabbing', 'panning');
+    };
     cv.addEventListener('pointerup', stop);
     cv.addEventListener('pointercancel', stop);
     cv.addEventListener('pointerleave', () => {
@@ -1968,9 +2009,11 @@ new MutationObserver(records => {
     track.setPointerCapture(e.pointerId); fromEvent(e);
     const move = ev => fromEvent(ev);
     const up = () => { track.removeEventListener('pointermove', move);
-                       track.removeEventListener('pointerup', up); };
+                       track.removeEventListener('pointerup', up);
+                       track.removeEventListener('pointercancel', up); };
     track.addEventListener('pointermove', move);
     track.addEventListener('pointerup', up);
+    track.addEventListener('pointercancel', up);
   });
   track.addEventListener('keydown', e => {
     if (!video || !video.duration) return;

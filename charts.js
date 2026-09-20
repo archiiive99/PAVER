@@ -150,6 +150,10 @@ function hoverable(node, html){
 
 function frame(host, w, h, label){
   host.innerHTML = '';
+  host.classList.add('chart-host');
+  host.setAttribute('tabindex', '0');
+  host.setAttribute('role', 'region');
+  host.setAttribute('aria-label', label);
   const svg = el('svg', {
     viewBox: `0 0 ${w} ${h}`, width: '100%', role: 'img',
     'aria-label': label, class: 'chart', preserveAspectRatio: 'xMidYMid meet'

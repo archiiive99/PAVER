@@ -1,0 +1,56 @@
+/* Phone layout keeps the desktop content and data intact. */
+@media (max-width: 700px), (max-width: 1000px) and (max-height: 500px) and (pointer: coarse) {
+  :root {
+    --radius: 8px;
+    --radius-lg: 8px;
+    --fs-body: 16px;
+    --fs-lead: 17px;
+    --fs-h3: 20px;
+  }
+  body, h1, h2, h3, h4 { letter-spacing: 0; }
+  .wrap { padding-inline: 16px; }
+  .hero { padding-top: 32px; }
+  .hero h1 { font-size: 28px; line-height: 1.25; }
+  .hero > .wrap { gap: 20px; }
+  .authors .author { white-space: nowrap; }
+  section { padding-block: 32px; }
+  .card, .card.tight { padding: 16px; min-width: 0; }
+  section > .wrap > .shead + * { margin-top: 20px; }
+  .stack, .cols-2, .cols-3 { gap: 20px; }
+  .chead { gap: 12px; }
+  .chead .actions { margin-left: 0; width: 100%; }
+  .chead .actions .field { width: 100%; min-width: 0; }
+  .field .select, .field .sselect { flex: 1; min-width: 0; }
+  .select select, .sselect, .strigger { min-width: 0; max-width: 100%; }
+  .field .select select, .field .strigger { width: 100%; }
+  .select select, input[type="search"] { font-size: 16px; min-height: 44px; }
+  .strigger, .sitem, .btn { min-height: 44px; }
+  .segbar:not(.navbar) { border-radius: 10px; gap: 4px; }
+  .segbar:not(.navbar) button { min-height: 44px; height: auto; padding: 10px 12px; border-radius: 8px; }
+  .segbar:not(.navbar) .thumb { border-radius: 8px; }
+  .pane > .segbar, .pane > .chips { margin-top: 20px; }
+  .segbar.center { align-self: center; }
+  .bar .wrap { width: 100%; }
+  .bar #theme { right: 16px; }
+  nav.navbar { border-radius: 0 0 8px 8px; width: 100%; max-height: calc(100dvh - var(--bar-h)); }
+  nav.navbar a { width: 100%; min-height: 44px; }
+  .chart-host { min-width: 0; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
+  .chart-host > svg.chart { min-width: 560px; max-width: none; }
+  .scroller { max-width: 100%; overscroll-behavior-x: contain; }
+  .wvtransport { display: grid; grid-template-columns: 44px minmax(64px, 1fr) auto; gap: 8px; padding: 8px; border-radius: 10px; }
+  .wvtransport .wvplay { width: 44px; height: 44px; }
+  .wvtransport .wvtrack { width: 100%; height: 44px; }
+  .wvtransport .wvclock { font-size: 13px; }
+  #qvSpeed, #wvSpeed { grid-column: 1 / -1; justify-self: center; margin: 0; }
+  .qvnav { width: 44px; height: 44px; }
+  .qvnav.prev { left: 4px; }
+  .qvnav.next { right: 4px; }
+  .qvstage, .qvframe { border-radius: 6px; }
+  #qvArch { margin-top: 16px; }
+  .wvcam, .wvpane { border-radius: 6px; }
+  .wvcamname { font-size: 11px; left: 4px; bottom: 4px; padding: 3px 4px; }
+  .wvname { white-space: normal; overflow-wrap: anywhere; }
+  .spop { max-height: min(320px, 50dvh); }
+  /* Keep the floating shortcut from covering media and transport controls. */
+  #top { position: relative; inset: auto; display: flex; width: 44px; height: 44px; margin: 0 auto calc(24px + env(safe-area-inset-bottom)); opacity: 1; pointer-events: auto; }
+}
