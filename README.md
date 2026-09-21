@@ -2,7 +2,7 @@
 
 # Planning-Aligned Pretraining of BEV Representations<br>with Sparse Action-Conditioned Targets<br>for End-to-End Autonomous Driving
 
-[**Jaeha Song**](https://www.linkedin.com/in/archiiive99/) &nbsp;&middot;&nbsp; [**Soonmin Hwang**](https://soonminhwang.github.io/)<br>
+[**Jaeha Song**](https://archiiive99.github.io/) &nbsp;&middot;&nbsp; [**Soonmin Hwang**](https://soonminhwang.github.io/)<br>
 Hanyang University
 
 [**Project Page**](https://archiiive99.github.io/PAVER/) &nbsp;&nbsp; **Paper** &nbsp;&nbsp; [**Model Zoo**](#model-zoo)
