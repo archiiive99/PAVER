@@ -105,7 +105,12 @@ adapter setup. Dataset conversion is described in [`docs/DATA.md`](#news).
 @misc{song2026paver,
   title  = {Planning-Aligned Pretraining of BEV Representations with Sparse Action-Conditioned Targets for End-to-End Autonomous Driving},
   author = {Jaeha Song and Soonmin Hwang},
-  year   = {2026}
+  year   = {2026},
+  eprint = {2609.22868},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  doi    = {10.48550/arXiv.2609.22868},
+  url    = {https://arxiv.org/abs/2609.22868}
 }
 ```
 
