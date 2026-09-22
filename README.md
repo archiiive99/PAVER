@@ -5,7 +5,7 @@
 [**Jaeha Song**](https://archiiive99.github.io/) &nbsp;&middot;&nbsp; [**Soonmin Hwang**](https://soonminhwang.github.io/)<br>
 Hanyang University
 
-[**Project Page**](https://archiiive99.github.io/PAVER/) &nbsp;&nbsp; **Paper** &nbsp;&nbsp; [**Model Zoo**](#model-zoo)
+[**Project Page**](https://archiiive99.github.io/PAVER/) &nbsp;&nbsp; [**Paper**](https://arxiv.org/abs/2609.22868) &nbsp;&nbsp; [**Model Zoo**](#model-zoo)
 
 <img src="assets/vad_tiny_gradcam_demo.webp" width="100%" alt="VAD-Tiny and PAVER predictions with BEV Grad-CAM on nuScenes">
 
